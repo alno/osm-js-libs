@@ -17,7 +17,16 @@
           osmLayer = new L.TileLayer(osmUrl, {maxZoom: 18, attribution: osmAttribution});
 
       var map = new L.Map('map');
-      map.setView(new L.LatLng(51.505, -0.09), 13).addLayer(osmLayer);
+      map.setView(new L.LatLng(57.1, 31.1), 10)
+      map.addLayer(osmLayer);
+      map.addLayer(new ValidatorsLayer({validators: [{
+        "name": "Отладочный валидатор",
+        "url": "http://alno.name:4567/validate?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
+        "offset_limit": true,
+        "types": {
+          "test_error": {"text": "Тестовая ошибка"}
+        }
+      }]}))
     </script>
   </body>
 </html>
