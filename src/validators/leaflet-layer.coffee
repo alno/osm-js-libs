@@ -91,8 +91,18 @@ class ValidatorsLayer
       map.addLayer(layer)
 
   buildResult: (validator, res) ->
+    errorText = res.text or validator.types[res.type].text
+
+    popupText = "<p>#{errorText}</p>"
+
+    if res.objects
+      popupText += "<ul>"
+      for obj in res.objects
+        popupText += "<li><a href=\"http://www.openstreetmap.org/browse/#{obj[0]}/#{obj[1]}\" target=\"_blank\">#{obj.join('-')}</a></li>"
+      popupText += "</ul>"
+
     resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
-    resLayer.bindPopup(res.text or validator.types[res.type].text)
+    resLayer.bindPopup(popupText)
     resLayer
 
 

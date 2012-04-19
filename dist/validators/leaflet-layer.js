@@ -115,12 +115,23 @@
     };
 
     ValidatorsLayer.prototype.buildResult = function(validator, res) {
-      var resLayer;
+      var errorText, obj, popupText, resLayer, _i, _len, _ref;
+      errorText = res.text || validator.types[res.type].text;
+      popupText = "<p>" + errorText + "</p>";
+      if (res.objects) {
+        popupText += "<ul>";
+        _ref = res.objects;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          obj = _ref[_i];
+          popupText += "<li><a href=\"http://www.openstreetmap.org/browse/" + obj[0] + "/" + obj[1] + "\" target=\"_blank\">" + (obj.join('-')) + "</a></li>";
+        }
+        popupText += "</ul>";
+      }
       resLayer = new L.GeoJSON({
         type: 'Feature',
         geometry: res.geometry
       });
-      resLayer.bindPopup(res.text || validator.types[res.type].text);
+      resLayer.bindPopup(popupText);
       return resLayer;
     };
 
