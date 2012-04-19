@@ -21,7 +21,7 @@
       var map = new L.Map('map');
       map.setView(new L.LatLng(57.1, 31.1), 10)
       map.addLayer(osmLayer);
-      map.addLayer(new OsmJs.ValidatorsLayer({validators: [{
+      map.addLayer(new OsmJs.Validators.LeafletLayer({validators: [{
         "name": "Отладочный валидатор",
         "url": "http://alno.name:4567/validate?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "offset_limit": true,

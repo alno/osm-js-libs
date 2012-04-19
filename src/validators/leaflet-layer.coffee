@@ -6,7 +6,7 @@ class ValidatorsLayer
 
   @jsonpRequest: (url, cb) ->
     counter = (@callbackCounter += 1)
-    callback = "OsmJs.ValidatorsLayer.callbacks[#{counter}]"
+    callback = "OsmJs.Validators.LeafletLayer.callbacks[#{counter}]"
 
     @callbacks[counter] = (data) =>
       @callbacks[counter] = undefined
@@ -78,4 +78,5 @@ class ValidatorsLayer
         map.addLayer(layer)
 
 @OsmJs = {} unless @OsmJs
-@OsmJs.ValidatorsLayer = ValidatorsLayer
+@OsmJs.Validators = {} unless @OsmJs.Validators
+@OsmJs.Validators.LeafletLayer = ValidatorsLayer

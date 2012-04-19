@@ -14,7 +14,7 @@
       var callback, counter, delim, el,
         _this = this;
       counter = (this.callbackCounter += 1);
-      callback = "OsmJs.ValidatorsLayer.callbacks[" + counter + "]";
+      callback = "OsmJs.Validators.LeafletLayer.callbacks[" + counter + "]";
       this.callbacks[counter] = function(data) {
         _this.callbacks[counter] = void 0;
         return cb(data);
@@ -104,6 +104,10 @@
     this.OsmJs = {};
   }
 
-  this.OsmJs.ValidatorsLayer = ValidatorsLayer;
+  if (!this.OsmJs.Validators) {
+    this.OsmJs.Validators = {};
+  }
+
+  this.OsmJs.Validators.LeafletLayer = ValidatorsLayer;
 
 }).call(this);
