@@ -1,5 +1,7 @@
 <html>
   <head>
+    <meta charset="utf-8" />
+
     <title>Leaflet validators example</title>
 
     <link rel="stylesheet" href="http://leaflet.cloudmade.com/dist/leaflet.css" />
@@ -19,7 +21,7 @@
       var map = new L.Map('map');
       map.setView(new L.LatLng(57.1, 31.1), 10)
       map.addLayer(osmLayer);
-      map.addLayer(new ValidatorsLayer({validators: [{
+      map.addLayer(new OsmJs.ValidatorsLayer({validators: [{
         "name": "Отладочный валидатор",
         "url": "http://alno.name:4567/validate?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "offset_limit": true,

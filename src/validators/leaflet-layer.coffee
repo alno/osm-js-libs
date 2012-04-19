@@ -1,12 +1,12 @@
 
-class @ValidatorsLayer
+class ValidatorsLayer
 
   @callbacks = {}
   @callbackCounter = 0
 
   @jsonpRequest: (url, cb) ->
     counter = (@callbackCounter += 1)
-    callback = "ValidatorsLayer.callbacks[#{counter}]"
+    callback = "OsmJs.ValidatorsLayer.callbacks[#{counter}]"
 
     @callbacks[counter] = (data) =>
       @callbacks[counter] = undefined
@@ -70,6 +70,12 @@ class @ValidatorsLayer
         layer.clearLayers()
 
         for res in data.results
-          layer.addLayer(new L.GeoJSON(type: 'Feature', geometry: res.geometry))
+          resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
+          resLayer.bindPopup(res.text or validator.types[res.type].text)
+
+          layer.addLayer(resLayer)
 
         map.addLayer(layer)
+
+@OsmJs = {} unless @OsmJs
+@OsmJs.ValidatorsLayer = ValidatorsLayer
