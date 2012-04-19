@@ -10,6 +10,24 @@
 
     ValidatorsLayer.callbackCounter = 0;
 
+    ValidatorsLayer.request = function(url, validator, cb) {
+      var xhr;
+      if (validator.jsonp) {
+        return this.jsonpRequest(url, cb);
+      } else {
+        xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              return cb(eval("(" + xhr.responseText + ")"));
+            }
+          }
+        };
+        return xhr.send();
+      }
+    };
+
     ValidatorsLayer.jsonpRequest = function(url, cb) {
       var callback, counter, delim, el,
         _this = this;
@@ -65,35 +83,45 @@
     };
 
     ValidatorsLayer.prototype.update = function() {
-      var bounds, layer, ne, sw, url, validator, _i, _len, _ref, _results,
-        _this = this;
+      var validator, _i, _len, _ref, _results;
       _ref = this.options.validators;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         validator = _ref[_i];
-        bounds = this.map.getBounds();
-        sw = bounds.getSouthWest();
-        ne = bounds.getNorthEast();
-        url = validator.url.replace('{minlat}', sw.lat).replace('{maxlat}', ne.lat).replace('{minlon}', sw.lng).replace('{maxlon}', ne.lng);
-        layer = this.layers[validator.url];
-        _results.push(ValidatorsLayer.jsonpRequest(url, function(data) {
-          var res, resLayer, _j, _len1, _ref1;
-          map.removeLayer(layer);
-          layer.clearLayers();
-          _ref1 = data.results;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            res = _ref1[_j];
-            resLayer = new L.GeoJSON({
-              type: 'Feature',
-              geometry: res.geometry
-            });
-            resLayer.bindPopup(res.text || validator.types[res.type].text);
-            layer.addLayer(resLayer);
-          }
-          return map.addLayer(layer);
-        }));
+        _results.push(this.updateValidator(validator));
       }
       return _results;
+    };
+
+    ValidatorsLayer.prototype.updateValidator = function(validator) {
+      var bounds, layer, ne, sw, url,
+        _this = this;
+      bounds = this.map.getBounds();
+      sw = bounds.getSouthWest();
+      ne = bounds.getNorthEast();
+      url = validator.url.replace('{minlat}', sw.lat).replace('{maxlat}', ne.lat).replace('{minlon}', sw.lng).replace('{maxlon}', ne.lng);
+      layer = this.layers[validator.url];
+      return ValidatorsLayer.request(url, validator, function(data) {
+        var res, _i, _len, _ref;
+        map.removeLayer(layer);
+        layer.clearLayers();
+        _ref = data.results;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          res = _ref[_i];
+          layer.addLayer(_this.buildResult(validator, res));
+        }
+        return map.addLayer(layer);
+      });
+    };
+
+    ValidatorsLayer.prototype.buildResult = function(validator, res) {
+      var resLayer;
+      resLayer = new L.GeoJSON({
+        type: 'Feature',
+        geometry: res.geometry
+      });
+      resLayer.bindPopup(res.text || validator.types[res.type].text);
+      return resLayer;
     };
 
     return ValidatorsLayer;

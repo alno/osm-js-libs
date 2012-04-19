@@ -4,6 +4,19 @@ class ValidatorsLayer
   @callbacks = {}
   @callbackCounter = 0
 
+  @request: (url, validator, cb) ->
+    if validator.jsonp
+      @jsonpRequest url, cb
+    else
+      xhr = new XMLHttpRequest()
+      xhr.open 'GET', url, true
+      xhr.onreadystatechange = ->
+        if xhr.readyState == 4
+          if xhr.status == 200
+            cb(eval("(#{xhr.responseText})"))
+
+      xhr.send()
+
   @jsonpRequest: (url, cb) ->
     counter = (@callbackCounter += 1)
     callback = "OsmJs.Validators.LeafletLayer.callbacks[#{counter}]"
@@ -53,29 +66,35 @@ class ValidatorsLayer
 
   update: ->
     for validator in @options.validators
-      bounds = @map.getBounds()
-      sw = bounds.getSouthWest()
-      ne = bounds.getNorthEast()
+      @updateValidator(validator)
 
-      url = validator.url
-        .replace('{minlat}', sw.lat)
-        .replace('{maxlat}', ne.lat)
-        .replace('{minlon}', sw.lng)
-        .replace('{maxlon}', ne.lng)
+  updateValidator: (validator) ->
+    bounds = @map.getBounds()
+    sw = bounds.getSouthWest()
+    ne = bounds.getNorthEast()
 
-      layer = @layers[validator.url]
+    url = validator.url
+      .replace('{minlat}', sw.lat)
+      .replace('{maxlat}', ne.lat)
+      .replace('{minlon}', sw.lng)
+      .replace('{maxlon}', ne.lng)
 
-      ValidatorsLayer.jsonpRequest url, (data) =>
-        map.removeLayer(layer)
-        layer.clearLayers()
+    layer = @layers[validator.url]
 
-        for res in data.results
-          resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
-          resLayer.bindPopup(res.text or validator.types[res.type].text)
+    ValidatorsLayer.request url, validator, (data) =>
+      map.removeLayer(layer)
+      layer.clearLayers()
 
-          layer.addLayer(resLayer)
+      for res in data.results
+        layer.addLayer(@buildResult(validator, res))
 
-        map.addLayer(layer)
+      map.addLayer(layer)
+
+  buildResult: (validator, res) ->
+    resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
+    resLayer.bindPopup(res.text or validator.types[res.type].text)
+    resLayer
+
 
 @OsmJs = {} unless @OsmJs
 @OsmJs.Validators = {} unless @OsmJs.Validators
