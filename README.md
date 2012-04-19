@@ -6,7 +6,7 @@
 
 Add validators layer to your Leaflet map by:
 
-    map.addLayer(new OsmJs.ValidatorsLayer(config))
+    map.addLayer(new OsmJs.Validators.LeafletLayer(config))
 
 Where example config is:
 
