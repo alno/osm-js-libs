@@ -1,0 +1,15 @@
+{
+  "name": "osm-js-libs",
+  "description": "JavaScript libraries for OpenStreetMap applications",
+  "version": "0.1.0",
+  "author": "alno",
+  "licenses":
+    [{
+      "type": "MIT",
+      "url": "https://github.com/maccman/spine/blob/master/LICENSE"
+    }],
+  "repository": {
+    "type" : "git",
+    "url": "http://github.com/alno/osm-js-libs.git"
+  }
+}
