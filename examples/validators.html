@@ -19,7 +19,7 @@
           osmLayer = new L.TileLayer(osmUrl, {maxZoom: 18, attribution: osmAttribution});
 
       var map = new L.Map('map');
-      map.setView(new L.LatLng(57.1, 31.1), 10)
+      map.setView(new L.LatLng(57.1, 31.1), 7)
       map.addLayer(osmLayer);
       map.addLayer(new OsmJs.Validators.LeafletLayer({validators: [{
         "name": "Отладочный валидатор",
