@@ -48,7 +48,7 @@ class ValidatorsLayer
     for key, layer of @layers
       map.addLayer(layer)
 
-    map.on('move', @limitedUpdate, @)
+    # map.on('move', @limitedUpdate, @)
     map.on('moveend', @update, @)
     map.on('viewreset', @update, @)
 

@@ -63,7 +63,6 @@
         layer = _ref[key];
         map.addLayer(layer);
       }
-      map.on('move', this.limitedUpdate, this);
       map.on('moveend', this.update, this);
       map.on('viewreset', this.update, this);
       return this.update();
