@@ -11,7 +11,7 @@
     <script src="../dist/validators/leaflet-layer.js"></script>
   </head>
   <body>
-    <div id ="map" style="width: 100%; height: 400px"></div>
+    <div id ="map" style="width: 100%; height: 100%"></div>
 
     <script>
       var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -35,6 +35,12 @@
         "offset_limit": true,
         "types": {
           "some_error": {"text": "Ошибка"}
+        }
+      },{
+        "name": "Валидатор 3",
+        "url": "http://ersh.homelinux.com:8090/api/bug_orphan_street?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
+        "types": {
+          "orphan_street": {"text": "Orphan street"}
         }
       }]}))
     </script>
