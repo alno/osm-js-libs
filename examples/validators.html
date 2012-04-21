@@ -26,40 +26,30 @@
       map.setView(new L.LatLng(57.1, 31.1), 7)
       map.addLayer(osmLayer);
 
-      var validatorsLayer = new OsmJs.Validators.LeafletLayer();
+      var validatorsLayer = new OsmJs.Validators.LeafletLayer({validators: [{
+        "name": "Валидатор Zkir",
+        "url": "http://osm.alno.name/validators/zkir?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
+        "types": {
+        },
+        "jsonp": true
+      }]});
 
-      validatorsLayer.on('validatoradd',function(d){console.log(["add",d])});
-      validatorsLayer.on('validatorchange',function(d){console.log(["change",d])});
-      validatorsLayer.on('validatorremove',function(d){console.log(["remove",d])});
+      map.addLayer(validatorsLayer);
 
-      /*validatorsLayer.addValidator({
-        "name": "Валидатор 2",
+      $('#validators').validatorsControl(validatorsLayer, { validators: [{
+        "name": "Валидатор отношений",
         "url": "http://osm.sbin.ru/pt/vps?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "offset_limit": true,
         "types": {
           "some_error": {"text": "Ошибка"}
         }
-      });*/
-
-      validatorsLayer.addValidator({
-        "name": "Валидатор 3",
+      },{
+        "name": "Валидатор сиротских улиц",
         "url": "http://openstreetmap.ru/api/bug_orphan_street?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "types": {
           "orphan_street": {"text": "Orphan street"}
         }
-      });
-
-      validatorsLayer.addValidator({
-        "name": "Валидатор 4",
-        "url": "http://osm.alno.name/validators/zkir?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
-        "types": {
-        },
-        "jsonp": true
-      });
-
-      map.addLayer(validatorsLayer);
-
-      $('#validators').validatorsControl(validatorsLayer)
+      }]})
     </script>
   </body>
 </html>
