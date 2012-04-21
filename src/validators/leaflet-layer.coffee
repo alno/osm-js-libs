@@ -7,9 +7,20 @@ Layer = L.Class.extend
     @sources = {}
     @sourceLayers = {}
     @sourceRequests = {}
+    @disabledErrors = []
 
     for source in (@options.sources or [])
       @addSource(source)
+
+  disableError: (error) ->
+    if @disabledErrors.indexOf(error) < 0
+      @disabledErrors.push(error)
+      @update()
+
+  enableError: (error) ->
+    if (idx = @disabledErrors.indexOf(error)) >= 0
+      @disabledErrors.splice(idx, 1)
+      @update()
 
   addSource: (source) ->
     if @sources[source.url]
@@ -89,7 +100,7 @@ Layer = L.Class.extend
       map.removeLayer(layer)
 
       layer.clearLayers()
-      layer.addLayer(@buildResult(source, res)) for res in data.results
+      layer.addLayer(@buildResult(source, res)) for res in data.results when @disabledErrors.indexOf(res.type) < 0
 
       map.addLayer(layer)
 
@@ -149,7 +160,7 @@ Layer.Utils =
       el.parentNode.removeChild(el) if el.parentNode
 
     @callbacks[counter] = (data) =>
-      document.getElementsByTagName('body')[0].removeChild(el)
+      el.parentNode.removeChild(el) if el.parentNode
       delete @callbacks[counter]
       cb(data)
 

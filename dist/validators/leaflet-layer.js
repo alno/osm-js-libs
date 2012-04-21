@@ -10,6 +10,7 @@
       this.sources = {};
       this.sourceLayers = {};
       this.sourceRequests = {};
+      this.disabledErrors = [];
       _ref = this.options.sources || [];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -17,6 +18,19 @@
         _results.push(this.addSource(source));
       }
       return _results;
+    },
+    disableError: function(error) {
+      if (this.disabledErrors.indexOf(error) < 0) {
+        this.disabledErrors.push(error);
+        return this.update();
+      }
+    },
+    enableError: function(error) {
+      var idx;
+      if ((idx = this.disabledErrors.indexOf(error)) >= 0) {
+        this.disabledErrors.splice(idx, 1);
+        return this.update();
+      }
     },
     addSource: function(source) {
       if (this.sources[source.url]) {
@@ -112,7 +126,9 @@
         _ref = data.results;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           res = _ref[_i];
-          layer.addLayer(_this.buildResult(source, res));
+          if (_this.disabledErrors.indexOf(res.type) < 0) {
+            layer.addLayer(_this.buildResult(source, res));
+          }
         }
         return map.addLayer(layer);
       });
@@ -186,7 +202,9 @@
         }
       };
       this.callbacks[counter] = function(data) {
-        document.getElementsByTagName('body')[0].removeChild(el);
+        if (el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
         delete _this.callbacks[counter];
         return cb(data);
       };

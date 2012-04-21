@@ -52,7 +52,11 @@
       }]})
 
       $('#errors').validatorErrorsControl(validatorsLayer, {errors: [{
-        name: "Отношения"
+        name: "Отношения",
+        children: [{
+          name: "Some error",
+          type: "some_error"
+        }]
       },{
         name: "Роутинг",
         children: [{
@@ -62,14 +66,38 @@
       },{
         name: "Адресация",
         children: [{
-          name: "Города без населения",
-          type: "city_without_population"
+          name: "Города",
+          children: [{
+            name: "Без населения",
+            type: "city_without_population"
+          },{
+            name: "Без границы",
+            type: "city_without_place_polygon"
+          },{
+            name: "Без центра",
+            type: "city_without_place_node"
+          }]
         },{
-          name: "Города без границы",
-          type: "city_without_place_polygon"
+          name: "Улицы",
+          children: [{
+            name: "За пределами города",
+            type: "street_not_in_place"
+          }]
         },{
-          name: "Города без центра",
-          type: "city_without_place_point"
+          name: "Здания",
+          children: [{
+            name: "За пределами города",
+            type: "building_not_in_place"
+          },{
+            name: "Без улицы",
+            type: "address_without_street"
+          },{
+            name: "Улица не найдена",
+            type: "address_street_not_found"
+          },{
+            name: "Улица за пределами города",
+            type: "address_street_not_in_place"
+          }]
         }]
       }]})
 

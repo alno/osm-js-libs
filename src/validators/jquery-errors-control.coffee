@@ -19,12 +19,21 @@ class JqueryValidatorErrorsControl
       ul.append(@buildListItem(childErr))
 
     cb = $('<input type="checkbox" />')
-    cb.attr('checked', 'checked')
+    cb.data('type', error.type)
+    cb.attr('checked', 'checked') unless error.type and @layer.disabledErrors.indexOf(error.type) >= 0
     cb.change =>
       if cb.attr('checked')
         ul.find('input').removeAttr('disabled')
       else
         ul.find('input').attr('disabled','true')
+
+      for e in li.find('input')
+        ee = $(e)
+        if type = ee.data('type')
+          if !ee.attr('disabled') && ee.attr('checked')
+            @layer.enableError(type)
+          else
+            @layer.disableError(type)
 
     li = $('<li />')
     li.append(cb)

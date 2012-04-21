@@ -36,13 +36,33 @@
         ul.append(this.buildListItem(childErr));
       }
       cb = $('<input type="checkbox" />');
-      cb.attr('checked', 'checked');
+      cb.data('type', error.type);
+      if (!(error.type && this.layer.disabledErrors.indexOf(error.type) >= 0)) {
+        cb.attr('checked', 'checked');
+      }
       cb.change(function() {
+        var e, ee, type, _j, _len1, _ref1, _results;
         if (cb.attr('checked')) {
-          return ul.find('input').removeAttr('disabled');
+          ul.find('input').removeAttr('disabled');
         } else {
-          return ul.find('input').attr('disabled', 'true');
+          ul.find('input').attr('disabled', 'true');
         }
+        _ref1 = li.find('input');
+        _results = [];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          e = _ref1[_j];
+          ee = $(e);
+          if (type = ee.data('type')) {
+            if (!ee.attr('disabled') && ee.attr('checked')) {
+              _results.push(_this.layer.enableError(type));
+            } else {
+              _results.push(_this.layer.disableError(type));
+            }
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
       });
       li = $('<li />');
       li.append(cb);
