@@ -21,13 +21,24 @@
       }
     },
     addValidator: function(validator) {
-      if (!this.validators[validator.url]) {
-        this.layers[validator.url] = new L.GeoJSON();
-      }
-      this.validators[validator.url] = validator;
-      if (this.map) {
-        this.map.addLayer(this.layers[validator.url]);
-        return this.updateValidator(validator);
+      if (this.validators[validator.url]) {
+        this.validators[validator.url] = validator;
+        if (this.map) {
+          this.updateValidator(validator);
+        }
+        return this.fire('validatorchange', {
+          validator: validator
+        });
+      } else {
+        this.layers[validator.url] = new L.LayerGroup();
+        this.validators[validator.url] = validator;
+        if (this.map) {
+          this.map.addLayer(this.layers[validator.url]);
+          this.updateValidator(validator);
+        }
+        return this.fire('validatoradd', {
+          validator: validator
+        });
       }
     },
     removeValidator: function(validator) {
@@ -36,7 +47,10 @@
           this.map.removeLayer(this.layers[validator.url]);
         }
         this.layers[validator.url] = void 0;
-        return this.validators[validator.url] = void 0;
+        this.validators[validator.url] = void 0;
+        return this.fire('validatorremove', {
+          validator: validator
+        });
       }
     },
     onAdd: function(map) {

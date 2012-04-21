@@ -23,6 +23,10 @@
       map.addLayer(osmLayer);
 
       var validatorsLayer = new OsmJs.Validators.LeafletLayer();
+
+      validatorsLayer.on('validatoradd',function(d){console.log(["add",d])});
+      validatorsLayer.on('validatorchange',function(d){console.log(["change",d])});
+      validatorsLayer.on('validatorremove',function(d){console.log(["remove",d])});
       /*validatorsLayer.addValidator({
         "name": "Валидатор 2",
         "url": "http://osm.sbin.ru/pt/vps?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",

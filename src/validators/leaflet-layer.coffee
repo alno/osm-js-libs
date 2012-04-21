@@ -13,18 +13,27 @@ Layer = L.Class.extend
         @addValidator(validator)
 
   addValidator: (validator) ->
-    @layers[validator.url] = new L.GeoJSON() unless @validators[validator.url]
-    @validators[validator.url] = validator
+    if @validators[validator.url]
+      @validators[validator.url] = validator
+      @updateValidator(validator) if @map
 
-    if @map
-      @map.addLayer(@layers[validator.url])
-      @updateValidator(validator)
+      @fire('validatorchange', {validator: validator})
+    else
+      @layers[validator.url] = new L.LayerGroup()
+      @validators[validator.url] = validator
+
+      if @map
+        @map.addLayer(@layers[validator.url])
+        @updateValidator(validator)
+
+      @fire('validatoradd', {validator: validator})
 
   removeValidator: (validator) ->
     if @validators[validator.url]
       @map.removeLayer(@layers[validator.url]) if @map
       @layers[validator.url] = undefined
       @validators[validator.url] = undefined
+      @fire('validatorremove', {validator: validator})
 
   onAdd: (map) ->
     @map = map
