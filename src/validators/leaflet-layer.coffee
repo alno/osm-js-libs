@@ -1,63 +1,7 @@
 
-class ValidatorsLayer
+ValidatorsLayer = L.Class.extend
 
-  @callbacks = {}
-  @callbackCounter = 0
-
-  @activeXhr = []
-  @activeJsonp = []
-
-  @cancelRequests: ->
-    for xhr in @activeXhr
-      xhr.abort()
-
-    for el in @activeJsonp
-      el.src = undefined
-      document.getElementsByTagName('body')[0].removeChild(el)
-
-    @activeXhr = []
-    @activeJsonp = []
-
-  @request: (url, validator, cb) ->
-    if validator.jsonp
-      @requestJsonp url, cb
-    else
-      @requestXhr url, cb
-
-  @requestXhr: (url, cb) ->
-    xhr = new XMLHttpRequest()
-    xhr.open 'GET', url, true
-    xhr.onreadystatechange = ->
-      if xhr.readyState == 4
-        if xhr.status == 200
-          @activeXhr.splice(idx, 1) if (idx = @activeXhr.indexOf(xhr)) >= 0
-          cb(eval("(#{xhr.responseText})"))
-
-    xhr.send()
-    @activeXhr.push xhr
-
-  @requestJsonp: (url, cb) ->
-    el = document.createElement('script')
-    counter = (@callbackCounter += 1)
-    callback = "OsmJs.Validators.LeafletLayer.callbacks[#{counter}]"
-
-    @callbacks[counter] = (data) =>
-      if (idx = @activeJsonp.indexOf(el)) >= 0
-        @activeJsonp.splice(idx, 1)
-        document.getElementsByTagName('body')[0].removeChild(el)
-        @callbacks[counter] = undefined
-        cb(data)
-
-    delim = if url.indexOf('?') >= 0
-      '&'
-    else
-      '?'
-
-    el.src = "#{url}#{delim}callback=#{callback}"
-    document.getElementsByTagName('body')[0].appendChild(el)
-    @activeJsonp.push el
-
-  constructor: (@options)->
+  initialize: (@options)->
     @layers = {}
 
     for validator in @options.validators
@@ -84,7 +28,7 @@ class ValidatorsLayer
     @map = undefined
 
   update: ->
-    ValidatorsLayer.cancelRequests()
+    ValidatorsLayer.Utils.cancelRequests()
 
     for validator in @options.validators
       @updateValidator(validator)
@@ -100,7 +44,7 @@ class ValidatorsLayer
       .replace('{minlon}', sw.lng)
       .replace('{maxlon}', ne.lng)
 
-    ValidatorsLayer.request url, validator, (data) =>
+    ValidatorsLayer.Utils.request url, validator, (data) =>
       layer = @layers[validator.url]
       map.removeLayer(layer)
       layer.clearLayers()
@@ -136,6 +80,62 @@ class ValidatorsLayer
     resLayer.bindPopup(popupText)
     resLayer
 
+ValidatorsLayer.Utils =
+  callbacks: {}
+  callbackCounter: 0
+
+  activeXhr: []
+  activeJsonp: []
+
+  cancelRequests: ->
+    for xhr in @activeXhr
+      xhr.abort()
+
+    for el in @activeJsonp
+      el.src = undefined
+      document.getElementsByTagName('body')[0].removeChild(el)
+
+    @activeXhr = []
+    @activeJsonp = []
+
+  request: (url, validator, cb) ->
+    if validator.jsonp
+      @requestJsonp url, cb
+    else
+      @requestXhr url, cb
+
+  requestXhr: (url, cb) ->
+    xhr = new XMLHttpRequest()
+    xhr.open 'GET', url, true
+    xhr.onreadystatechange = ->
+      if xhr.readyState == 4
+        if xhr.status == 200
+          @activeXhr.splice(idx, 1) if (idx = @activeXhr.indexOf(xhr)) >= 0
+          cb(eval("(#{xhr.responseText})"))
+
+    xhr.send()
+    @activeXhr.push xhr
+
+  requestJsonp: (url, cb) ->
+    el = document.createElement('script')
+    counter = (@callbackCounter += 1)
+    callback = "OsmJs.Validators.LeafletLayer.Utils.callbacks[#{counter}]"
+
+    @callbacks[counter] = (data) =>
+      if (idx = @activeJsonp.indexOf(el)) >= 0
+        @activeJsonp.splice(idx, 1)
+        document.getElementsByTagName('body')[0].removeChild(el)
+        @callbacks[counter] = undefined
+        cb(data)
+
+    delim = if url.indexOf('?') >= 0
+      '&'
+    else
+      '?'
+
+    el.src = "#{url}#{delim}callback=#{callback}"
+    document.getElementsByTagName('body')[0].appendChild(el)
+    @activeJsonp.push el
 
 @OsmJs = {} unless @OsmJs
 @OsmJs.Validators = {} unless @OsmJs.Validators

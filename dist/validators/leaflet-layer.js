@@ -2,84 +2,8 @@
 (function() {
   var ValidatorsLayer;
 
-  ValidatorsLayer = (function() {
-
-    ValidatorsLayer.name = 'ValidatorsLayer';
-
-    ValidatorsLayer.callbacks = {};
-
-    ValidatorsLayer.callbackCounter = 0;
-
-    ValidatorsLayer.activeXhr = [];
-
-    ValidatorsLayer.activeJsonp = [];
-
-    ValidatorsLayer.cancelRequests = function() {
-      var el, xhr, _i, _j, _len, _len1, _ref, _ref1;
-      _ref = this.activeXhr;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        xhr = _ref[_i];
-        xhr.abort();
-      }
-      _ref1 = this.activeJsonp;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        el = _ref1[_j];
-        el.src = void 0;
-        document.getElementsByTagName('body')[0].removeChild(el);
-      }
-      this.activeXhr = [];
-      return this.activeJsonp = [];
-    };
-
-    ValidatorsLayer.request = function(url, validator, cb) {
-      if (validator.jsonp) {
-        return this.requestJsonp(url, cb);
-      } else {
-        return this.requestXhr(url, cb);
-      }
-    };
-
-    ValidatorsLayer.requestXhr = function(url, cb) {
-      var xhr;
-      xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      xhr.onreadystatechange = function() {
-        var idx;
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            if ((idx = this.activeXhr.indexOf(xhr)) >= 0) {
-              this.activeXhr.splice(idx, 1);
-            }
-            return cb(eval("(" + xhr.responseText + ")"));
-          }
-        }
-      };
-      xhr.send();
-      return this.activeXhr.push(xhr);
-    };
-
-    ValidatorsLayer.requestJsonp = function(url, cb) {
-      var callback, counter, delim, el,
-        _this = this;
-      el = document.createElement('script');
-      counter = (this.callbackCounter += 1);
-      callback = "OsmJs.Validators.LeafletLayer.callbacks[" + counter + "]";
-      this.callbacks[counter] = function(data) {
-        var idx;
-        if ((idx = _this.activeJsonp.indexOf(el)) >= 0) {
-          _this.activeJsonp.splice(idx, 1);
-          document.getElementsByTagName('body')[0].removeChild(el);
-          _this.callbacks[counter] = void 0;
-          return cb(data);
-        }
-      };
-      delim = url.indexOf('?') >= 0 ? '&' : '?';
-      el.src = "" + url + delim + "callback=" + callback;
-      document.getElementsByTagName('body')[0].appendChild(el);
-      return this.activeJsonp.push(el);
-    };
-
-    function ValidatorsLayer(options) {
+  ValidatorsLayer = L.Class.extend({
+    initialize: function(options) {
       var validator, _i, _len, _ref;
       this.options = options;
       this.layers = {};
@@ -88,10 +12,9 @@
         validator = _ref[_i];
         this.layers[validator.url] = new L.LayerGroup();
       }
-      this.limitedUpdate = L.Util.limitExecByInterval(this.update, 2000, this);
-    }
-
-    ValidatorsLayer.prototype.onAdd = function(map) {
+      return this.limitedUpdate = L.Util.limitExecByInterval(this.update, 2000, this);
+    },
+    onAdd: function(map) {
       var key, layer, _ref;
       this.map = map;
       _ref = this.layers;
@@ -101,9 +24,8 @@
       }
       map.on('moveend', this.update, this);
       return this.update();
-    };
-
-    ValidatorsLayer.prototype.onRemove = function(map) {
+    },
+    onRemove: function(map) {
       var key, layer, _ref;
       map.off('moveend', this.update, this);
       _ref = this.layers;
@@ -112,11 +34,10 @@
         map.removeLayer(layer);
       }
       return this.map = void 0;
-    };
-
-    ValidatorsLayer.prototype.update = function() {
+    },
+    update: function() {
       var validator, _i, _len, _ref, _results;
-      ValidatorsLayer.cancelRequests();
+      ValidatorsLayer.Utils.cancelRequests();
       _ref = this.options.validators;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -124,16 +45,15 @@
         _results.push(this.updateValidator(validator));
       }
       return _results;
-    };
-
-    ValidatorsLayer.prototype.updateValidator = function(validator) {
+    },
+    updateValidator: function(validator) {
       var bounds, ne, sw, url,
         _this = this;
       bounds = this.map.getBounds();
       sw = bounds.getSouthWest();
       ne = bounds.getNorthEast();
       url = validator.url.replace('{minlat}', sw.lat).replace('{maxlat}', ne.lat).replace('{minlon}', sw.lng).replace('{maxlon}', ne.lng);
-      return ValidatorsLayer.request(url, validator, function(data) {
+      return ValidatorsLayer.Utils.request(url, validator, function(data) {
         var layer, res, _i, _len, _ref;
         layer = _this.layers[validator.url];
         map.removeLayer(layer);
@@ -145,9 +65,8 @@
         }
         return map.addLayer(layer);
       });
-    };
-
-    ValidatorsLayer.prototype.buildResult = function(validator, res) {
+    },
+    buildResult: function(validator, res) {
       var bounds, center, errorText, ne, obj, popupText, resLayer, sw, _i, _len, _ref;
       bounds = new L.LatLngBounds();
       resLayer = new L.GeoJSON({
@@ -177,11 +96,76 @@
       popupText += "</p>";
       resLayer.bindPopup(popupText);
       return resLayer;
-    };
+    }
+  });
 
-    return ValidatorsLayer;
-
-  })();
+  ValidatorsLayer.Utils = {
+    callbacks: {},
+    callbackCounter: 0,
+    activeXhr: [],
+    activeJsonp: [],
+    cancelRequests: function() {
+      var el, xhr, _i, _j, _len, _len1, _ref, _ref1;
+      _ref = this.activeXhr;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        xhr = _ref[_i];
+        xhr.abort();
+      }
+      _ref1 = this.activeJsonp;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        el = _ref1[_j];
+        el.src = void 0;
+        document.getElementsByTagName('body')[0].removeChild(el);
+      }
+      this.activeXhr = [];
+      return this.activeJsonp = [];
+    },
+    request: function(url, validator, cb) {
+      if (validator.jsonp) {
+        return this.requestJsonp(url, cb);
+      } else {
+        return this.requestXhr(url, cb);
+      }
+    },
+    requestXhr: function(url, cb) {
+      var xhr;
+      xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.onreadystatechange = function() {
+        var idx;
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            if ((idx = this.activeXhr.indexOf(xhr)) >= 0) {
+              this.activeXhr.splice(idx, 1);
+            }
+            return cb(eval("(" + xhr.responseText + ")"));
+          }
+        }
+      };
+      xhr.send();
+      return this.activeXhr.push(xhr);
+    },
+    requestJsonp: function(url, cb) {
+      var callback, counter, delim, el,
+        _this = this;
+      el = document.createElement('script');
+      counter = (this.callbackCounter += 1);
+      callback = "OsmJs.Validators.LeafletLayer.Utils.callbacks[" + counter + "]";
+      this.callbacks[counter] = function(data) {
+        var idx;
+        if ((idx = _this.activeJsonp.indexOf(el)) >= 0) {
+          _this.activeJsonp.splice(idx, 1);
+          document.getElementsByTagName('body')[0].removeChild(el);
+          _this.callbacks[counter] = void 0;
+          return cb(data);
+        }
+      };
+      delim = url.indexOf('?') >= 0 ? '&' : '?';
+      el.src = "" + url + delim + "callback=" + callback;
+      document.getElementsByTagName('body')[0].appendChild(el);
+      return this.activeJsonp.push(el);
+    }
+  };
 
   if (!this.OsmJs) {
     this.OsmJs = {};
