@@ -4,51 +4,50 @@ Layer = L.Class.extend
   includes: L.Mixin.Events
 
   initialize: (@options = {})->
-    @validators = {}
-    @validatorLayers = {}
-    @validatorRequests = {}
+    @sources = {}
+    @sourceLayers = {}
+    @sourceRequests = {}
 
-    if @options.validators
-      for validator in @options.validators
-        @addValidator(validator)
+    for source in (@options.sources or [])
+      @addSource(source)
 
-  addValidator: (validator) ->
-    if @validators[validator.url]
-      @validators[validator.url] = validator
-      @updateValidator(validator) if @map
+  addSource: (source) ->
+    if @sources[source.url]
+      @sources[source.url] = source
+      @updateValidator(source) if @map
 
-      @fire('validatorchange', {validator: validator})
+      @fire('sourcechange', {source: source})
     else
-      @validatorLayers[validator.url] = new L.LayerGroup()
-      @validators[validator.url] = validator
+      @sourceLayers[source.url] = new L.LayerGroup()
+      @sources[source.url] = source
 
-      if @validatorRequests[validator.url]
-        @validatorRequests[validator.url].abort()
-        delete @validatorRequests[validator.url]
+      if @sourceRequests[source.url]
+        @sourceRequests[source.url].abort()
+        delete @sourceRequests[source.url]
 
       if @map
-        @map.addLayer(@validatorLayers[validator.url])
-        @updateValidator(validator)
+        @map.addLayer(@sourceLayers[source.url])
+        @updateValidator(source)
 
-      @fire('validatoradd', {validator: validator})
+      @fire('sourceadd', {source: source})
 
-  removeValidator: (validator) ->
-    if @validators[validator.url]
-      @map.removeLayer(@validatorLayers[validator.url]) if @map
+  removeSource: (source) ->
+    if @sources[source.url]
+      @map.removeLayer(@sourceLayers[source.url]) if @map
 
-      delete @validatorLayers[validator.url]
-      delete @validators[validator.url]
+      delete @sourceLayers[source.url]
+      delete @sources[source.url]
 
-      if @validatorRequests[validator.url]
-        @validatorRequests[validator.url].abort()
-        delete @validatorRequests[validator.url]
+      if @sourceRequests[source.url]
+        @sourceRequests[source.url].abort()
+        delete @sourceRequests[source.url]
 
-      @fire('validatorremove', {validator: validator})
+      @fire('sourceremove', {source: source})
 
   onAdd: (map) ->
     @map = map
 
-    for key, layer of @validatorLayers
+    for key, layer of @sourceLayers
       map.addLayer(layer)
 
     map.on('moveend', @update, @)
@@ -58,44 +57,43 @@ Layer = L.Class.extend
   onRemove: (map) ->
     map.off('moveend', @update, @)
 
-    for key, layer of @validatorLayers
+    for key, layer of @sourceLayers
       map.removeLayer(layer)
 
     @map = undefined
 
   update: ->
-    for url, req of @validatorRequests
+    for url, req of @sourceRequests
       req.abort()
 
-    @validatorRequests = {}
+    @sourceRequests = {}
 
-    for url, validator of @validators
-      @updateValidator(validator)
+    for url, source of @sources
+      @updateValidator(source)
 
-  updateValidator: (validator) ->
+  updateValidator: (source) ->
     bounds = @map.getBounds()
     sw = bounds.getSouthWest()
     ne = bounds.getNorthEast()
 
-    url = validator.url
+    url = source.url
       .replace('{minlat}', sw.lat)
       .replace('{maxlat}', ne.lat)
       .replace('{minlon}', sw.lng)
       .replace('{maxlon}', ne.lng)
 
-    @validatorRequests[validator.url] = Layer.Utils.request url, validator, (data) =>
-      delete @validatorRequests[validator.url]
+    @sourceRequests[source.url] = Layer.Utils.request url, source, (data) =>
+      delete @sourceRequests[source.url]
 
-      layer = @validatorLayers[validator.url]
+      layer = @sourceLayers[source.url]
       map.removeLayer(layer)
-      layer.clearLayers()
 
-      for res in data.results
-        layer.addLayer(@buildResult(validator, res))
+      layer.clearLayers()
+      layer.addLayer(@buildResult(source, res)) for res in data.results
 
       map.addLayer(layer)
 
-  buildResult: (validator, res) ->
+  buildResult: (source, res) ->
     bounds = new L.LatLngBounds()
     resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
     resLayer._iterateLayers(((l) -> bounds.extend(if l instanceof L.Marker then l.getLatLng() else l.getBounds())), resLayer)
@@ -103,7 +101,7 @@ Layer = L.Class.extend
     center = bounds.getCenter()
     sw = bounds.getSouthWest()
     ne = bounds.getNorthEast()
-    errorText = res.text or validator.types[res.type].text
+    errorText = res.text or source.types[res.type].text
 
     popupText = "<p>#{errorText}</p>"
 
@@ -125,8 +123,8 @@ Layer.Utils =
   callbacks: {}
   callbackCounter: 0
 
-  request: (url, validator, cb) ->
-    if validator.jsonp
+  request: (url, source, cb) ->
+    if source.jsonp
       @requestJsonp url, cb
     else
       @requestXhr url, cb

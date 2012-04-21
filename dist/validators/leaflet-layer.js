@@ -5,66 +5,64 @@
   Layer = L.Class.extend({
     includes: L.Mixin.Events,
     initialize: function(options) {
-      var validator, _i, _len, _ref, _results;
+      var source, _i, _len, _ref, _results;
       this.options = options != null ? options : {};
-      this.validators = {};
-      this.validatorLayers = {};
-      this.validatorRequests = {};
-      if (this.options.validators) {
-        _ref = this.options.validators;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          validator = _ref[_i];
-          _results.push(this.addValidator(validator));
-        }
-        return _results;
+      this.sources = {};
+      this.sourceLayers = {};
+      this.sourceRequests = {};
+      _ref = this.options.sources || [];
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        source = _ref[_i];
+        _results.push(this.addSource(source));
       }
+      return _results;
     },
-    addValidator: function(validator) {
-      if (this.validators[validator.url]) {
-        this.validators[validator.url] = validator;
+    addSource: function(source) {
+      if (this.sources[source.url]) {
+        this.sources[source.url] = source;
         if (this.map) {
-          this.updateValidator(validator);
+          this.updateValidator(source);
         }
-        return this.fire('validatorchange', {
-          validator: validator
+        return this.fire('sourcechange', {
+          source: source
         });
       } else {
-        this.validatorLayers[validator.url] = new L.LayerGroup();
-        this.validators[validator.url] = validator;
-        if (this.validatorRequests[validator.url]) {
-          this.validatorRequests[validator.url].abort();
-          delete this.validatorRequests[validator.url];
+        this.sourceLayers[source.url] = new L.LayerGroup();
+        this.sources[source.url] = source;
+        if (this.sourceRequests[source.url]) {
+          this.sourceRequests[source.url].abort();
+          delete this.sourceRequests[source.url];
         }
         if (this.map) {
-          this.map.addLayer(this.validatorLayers[validator.url]);
-          this.updateValidator(validator);
+          this.map.addLayer(this.sourceLayers[source.url]);
+          this.updateValidator(source);
         }
-        return this.fire('validatoradd', {
-          validator: validator
+        return this.fire('sourceadd', {
+          source: source
         });
       }
     },
-    removeValidator: function(validator) {
-      if (this.validators[validator.url]) {
+    removeSource: function(source) {
+      if (this.sources[source.url]) {
         if (this.map) {
-          this.map.removeLayer(this.validatorLayers[validator.url]);
+          this.map.removeLayer(this.sourceLayers[source.url]);
         }
-        delete this.validatorLayers[validator.url];
-        delete this.validators[validator.url];
-        if (this.validatorRequests[validator.url]) {
-          this.validatorRequests[validator.url].abort();
-          delete this.validatorRequests[validator.url];
+        delete this.sourceLayers[source.url];
+        delete this.sources[source.url];
+        if (this.sourceRequests[source.url]) {
+          this.sourceRequests[source.url].abort();
+          delete this.sourceRequests[source.url];
         }
-        return this.fire('validatorremove', {
-          validator: validator
+        return this.fire('sourceremove', {
+          source: source
         });
       }
     },
     onAdd: function(map) {
       var key, layer, _ref;
       this.map = map;
-      _ref = this.validatorLayers;
+      _ref = this.sourceLayers;
       for (key in _ref) {
         layer = _ref[key];
         map.addLayer(layer);
@@ -75,7 +73,7 @@
     onRemove: function(map) {
       var key, layer, _ref;
       map.off('moveend', this.update, this);
-      _ref = this.validatorLayers;
+      _ref = this.sourceLayers;
       for (key in _ref) {
         layer = _ref[key];
         map.removeLayer(layer);
@@ -83,43 +81,43 @@
       return this.map = void 0;
     },
     update: function() {
-      var req, url, validator, _ref, _ref1, _results;
-      _ref = this.validatorRequests;
+      var req, source, url, _ref, _ref1, _results;
+      _ref = this.sourceRequests;
       for (url in _ref) {
         req = _ref[url];
         req.abort();
       }
-      this.validatorRequests = {};
-      _ref1 = this.validators;
+      this.sourceRequests = {};
+      _ref1 = this.sources;
       _results = [];
       for (url in _ref1) {
-        validator = _ref1[url];
-        _results.push(this.updateValidator(validator));
+        source = _ref1[url];
+        _results.push(this.updateValidator(source));
       }
       return _results;
     },
-    updateValidator: function(validator) {
+    updateValidator: function(source) {
       var bounds, ne, sw, url,
         _this = this;
       bounds = this.map.getBounds();
       sw = bounds.getSouthWest();
       ne = bounds.getNorthEast();
-      url = validator.url.replace('{minlat}', sw.lat).replace('{maxlat}', ne.lat).replace('{minlon}', sw.lng).replace('{maxlon}', ne.lng);
-      return this.validatorRequests[validator.url] = Layer.Utils.request(url, validator, function(data) {
+      url = source.url.replace('{minlat}', sw.lat).replace('{maxlat}', ne.lat).replace('{minlon}', sw.lng).replace('{maxlon}', ne.lng);
+      return this.sourceRequests[source.url] = Layer.Utils.request(url, source, function(data) {
         var layer, res, _i, _len, _ref;
-        delete _this.validatorRequests[validator.url];
-        layer = _this.validatorLayers[validator.url];
+        delete _this.sourceRequests[source.url];
+        layer = _this.sourceLayers[source.url];
         map.removeLayer(layer);
         layer.clearLayers();
         _ref = data.results;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           res = _ref[_i];
-          layer.addLayer(_this.buildResult(validator, res));
+          layer.addLayer(_this.buildResult(source, res));
         }
         return map.addLayer(layer);
       });
     },
-    buildResult: function(validator, res) {
+    buildResult: function(source, res) {
       var bounds, center, errorText, ne, obj, popupText, resLayer, sw, _i, _len, _ref;
       bounds = new L.LatLngBounds();
       resLayer = new L.GeoJSON({
@@ -132,7 +130,7 @@
       center = bounds.getCenter();
       sw = bounds.getSouthWest();
       ne = bounds.getNorthEast();
-      errorText = res.text || validator.types[res.type].text;
+      errorText = res.text || source.types[res.type].text;
       popupText = "<p>" + errorText + "</p>";
       if (res.objects) {
         popupText += "<ul>";
@@ -155,8 +153,8 @@
   Layer.Utils = {
     callbacks: {},
     callbackCounter: 0,
-    request: function(url, validator, cb) {
-      if (validator.jsonp) {
+    request: function(url, source, cb) {
+      if (source.jsonp) {
         return this.requestJsonp(url, cb);
       } else {
         return this.requestXhr(url, cb);
