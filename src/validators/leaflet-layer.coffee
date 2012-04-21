@@ -4,10 +4,9 @@ Layer = L.Class.extend
   includes: L.Mixin.Events
 
   initialize: (@options = {})->
-    @layers = {}
     @validators = {}
+    @validatorLayers = {}
     @validatorRequests = {}
-    @limitedUpdate = L.Util.limitExecByInterval(@update, 3000, @)
 
     if @options.validators
       for validator in @options.validators
@@ -20,7 +19,7 @@ Layer = L.Class.extend
 
       @fire('validatorchange', {validator: validator})
     else
-      @layers[validator.url] = new L.LayerGroup()
+      @validatorLayers[validator.url] = new L.LayerGroup()
       @validators[validator.url] = validator
 
       if @validatorRequests[validator.url]
@@ -28,16 +27,16 @@ Layer = L.Class.extend
         delete @validatorRequests[validator.url]
 
       if @map
-        @map.addLayer(@layers[validator.url])
+        @map.addLayer(@validatorLayers[validator.url])
         @updateValidator(validator)
 
       @fire('validatoradd', {validator: validator})
 
   removeValidator: (validator) ->
     if @validators[validator.url]
-      @map.removeLayer(@layers[validator.url]) if @map
+      @map.removeLayer(@validatorLayers[validator.url]) if @map
 
-      delete @layers[validator.url]
+      delete @validatorLayers[validator.url]
       delete @validators[validator.url]
 
       if @validatorRequests[validator.url]
@@ -49,7 +48,7 @@ Layer = L.Class.extend
   onAdd: (map) ->
     @map = map
 
-    for key, layer of @layers
+    for key, layer of @validatorLayers
       map.addLayer(layer)
 
     map.on('moveend', @update, @)
@@ -59,7 +58,7 @@ Layer = L.Class.extend
   onRemove: (map) ->
     map.off('moveend', @update, @)
 
-    for key, layer of @layers
+    for key, layer of @validatorLayers
       map.removeLayer(layer)
 
     @map = undefined
@@ -87,7 +86,7 @@ Layer = L.Class.extend
     @validatorRequests[validator.url] = Layer.Utils.request url, validator, (data) =>
       delete @validatorRequests[validator.url]
 
-      layer = @layers[validator.url]
+      layer = @validatorLayers[validator.url]
       map.removeLayer(layer)
       layer.clearLayers()
 

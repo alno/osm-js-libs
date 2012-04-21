@@ -7,10 +7,9 @@
     initialize: function(options) {
       var validator, _i, _len, _ref, _results;
       this.options = options != null ? options : {};
-      this.layers = {};
       this.validators = {};
+      this.validatorLayers = {};
       this.validatorRequests = {};
-      this.limitedUpdate = L.Util.limitExecByInterval(this.update, 3000, this);
       if (this.options.validators) {
         _ref = this.options.validators;
         _results = [];
@@ -31,14 +30,14 @@
           validator: validator
         });
       } else {
-        this.layers[validator.url] = new L.LayerGroup();
+        this.validatorLayers[validator.url] = new L.LayerGroup();
         this.validators[validator.url] = validator;
         if (this.validatorRequests[validator.url]) {
           this.validatorRequests[validator.url].abort();
           delete this.validatorRequests[validator.url];
         }
         if (this.map) {
-          this.map.addLayer(this.layers[validator.url]);
+          this.map.addLayer(this.validatorLayers[validator.url]);
           this.updateValidator(validator);
         }
         return this.fire('validatoradd', {
@@ -49,9 +48,9 @@
     removeValidator: function(validator) {
       if (this.validators[validator.url]) {
         if (this.map) {
-          this.map.removeLayer(this.layers[validator.url]);
+          this.map.removeLayer(this.validatorLayers[validator.url]);
         }
-        delete this.layers[validator.url];
+        delete this.validatorLayers[validator.url];
         delete this.validators[validator.url];
         if (this.validatorRequests[validator.url]) {
           this.validatorRequests[validator.url].abort();
@@ -65,7 +64,7 @@
     onAdd: function(map) {
       var key, layer, _ref;
       this.map = map;
-      _ref = this.layers;
+      _ref = this.validatorLayers;
       for (key in _ref) {
         layer = _ref[key];
         map.addLayer(layer);
@@ -76,7 +75,7 @@
     onRemove: function(map) {
       var key, layer, _ref;
       map.off('moveend', this.update, this);
-      _ref = this.layers;
+      _ref = this.validatorLayers;
       for (key in _ref) {
         layer = _ref[key];
         map.removeLayer(layer);
@@ -109,7 +108,7 @@
       return this.validatorRequests[validator.url] = Layer.Utils.request(url, validator, function(data) {
         var layer, res, _i, _len, _ref;
         delete _this.validatorRequests[validator.url];
-        layer = _this.layers[validator.url];
+        layer = _this.validatorLayers[validator.url];
         map.removeLayer(layer);
         layer.clearLayers();
         _ref = data.results;
