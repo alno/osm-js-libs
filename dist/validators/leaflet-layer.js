@@ -140,9 +140,14 @@
         type: 'Feature',
         geometry: res.geometry
       });
-      resLayer._iterateLayers((function(l) {
-        return bounds.extend(l instanceof L.Marker ? l.getLatLng() : l.getBounds());
-      }), resLayer);
+      resLayer._iterateLayers(function(l) {
+        if (l.getBounds) {
+          bounds.extend(l.getBounds().getSouthWest());
+          return bounds.extend(l.getBounds().getNorthEast());
+        } else {
+          return bounds.extend(l.getLatLng());
+        }
+      }, resLayer);
       center = bounds.getCenter();
       sw = bounds.getSouthWest();
       ne = bounds.getNorthEast();

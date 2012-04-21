@@ -107,7 +107,16 @@ Layer = L.Class.extend
   buildResult: (source, res) ->
     bounds = new L.LatLngBounds()
     resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
-    resLayer._iterateLayers(((l) -> bounds.extend(if l instanceof L.Marker then l.getLatLng() else l.getBounds())), resLayer)
+
+    resLayer._iterateLayers(
+      (l) ->
+        if l.getBounds
+          bounds.extend l.getBounds().getSouthWest()
+          bounds.extend l.getBounds().getNorthEast()
+        else
+          bounds.extend l.getLatLng()
+      resLayer
+    )
 
     center = bounds.getCenter()
     sw = bounds.getSouthWest()
