@@ -14,9 +14,12 @@
     <script src="../dist/validators/jquery-errors-control.js"></script>
   </head>
   <body>
-    <div id="map" style="width: 100%; height: 400"></div>
+    <div id="map" style="width: 100%; height: 500"></div>
 
+    <h3>Используемые источники:</h3>
     <ul id="sources"></ul>
+
+    <h3>Отображаемые ошибки:</h3>
     <ul id="errors"></ul>
 
     <script>
@@ -29,7 +32,7 @@
       map.addLayer(osmLayer);
 
       var validatorsLayer = new OsmJs.Validators.LeafletLayer({sources: [{
-        "name": "Валидатор Zkir",
+        "name": "Адресный и роутинговый валидатор Zkir",
         "url": "http://osm.alno.name/validators/zkir?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "types": {
         },
@@ -37,14 +40,14 @@
       }]});
 
       $('#sources').validatorSourcesControl(validatorsLayer, {sources: [{
-        "name": "Валидатор отношений",
+        "name": "Валидатор отношений Shurik",
         "url": "http://osm.sbin.ru/pt/vps?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "offset_limit": true,
         "types": {
           "some_error": {"text": "Ошибка"}
         }
       },{
-        "name": "Валидатор сиротских улиц",
+        "name": "Валидатор сиротских улиц ErshKUS",
         "url": "http://openstreetmap.ru/api/bug_orphan_street?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "types": {
           "orphan_street": {"text": "Orphan street"}
