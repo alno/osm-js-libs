@@ -1,5 +1,7 @@
 
-ValidatorsLayer = L.Class.extend
+Layer = L.Class.extend
+
+  includes: L.Mixin.Events
 
   initialize: (@options)->
     @layers = {}
@@ -28,7 +30,7 @@ ValidatorsLayer = L.Class.extend
     @map = undefined
 
   update: ->
-    ValidatorsLayer.Utils.cancelRequests()
+    Layer.Utils.cancelRequests()
 
     for validator in @options.validators
       @updateValidator(validator)
@@ -44,7 +46,7 @@ ValidatorsLayer = L.Class.extend
       .replace('{minlon}', sw.lng)
       .replace('{maxlon}', ne.lng)
 
-    ValidatorsLayer.Utils.request url, validator, (data) =>
+    Layer.Utils.request url, validator, (data) =>
       layer = @layers[validator.url]
       map.removeLayer(layer)
       layer.clearLayers()
@@ -80,7 +82,7 @@ ValidatorsLayer = L.Class.extend
     resLayer.bindPopup(popupText)
     resLayer
 
-ValidatorsLayer.Utils =
+Layer.Utils =
   callbacks: {}
   callbackCounter: 0
 
@@ -139,4 +141,4 @@ ValidatorsLayer.Utils =
 
 @OsmJs = {} unless @OsmJs
 @OsmJs.Validators = {} unless @OsmJs.Validators
-@OsmJs.Validators.LeafletLayer = ValidatorsLayer
+@OsmJs.Validators.LeafletLayer = Layer
