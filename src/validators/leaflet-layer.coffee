@@ -91,6 +91,13 @@ class ValidatorsLayer
       map.addLayer(layer)
 
   buildResult: (validator, res) ->
+    bounds = new L.LatLngBounds()
+    resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
+    resLayer._iterateLayers(((l) -> bounds.extend(if l instanceof L.Marker then l.getLatLng() else l.getBounds())), resLayer)
+
+    center = bounds.getCenter()
+    sw = bounds.getSouthWest()
+    ne = bounds.getNorthEast()
     errorText = res.text or validator.types[res.type].text
 
     popupText = "<p>#{errorText}</p>"
@@ -101,7 +108,11 @@ class ValidatorsLayer
         popupText += "<li><a href=\"http://www.openstreetmap.org/browse/#{obj[0]}/#{obj[1]}\" target=\"_blank\">#{obj.join('-')}</a></li>"
       popupText += "</ul>"
 
-    resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
+    popupText += "<p>"
+    popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=#{ne.lat}&bottom=#{sw.lat}&left=#{sw.lng}&right=#{ne.lng}\" target=\"josm\">Edit in JOSM</a><br />"
+    popupText += "<a href=\"http://openstreetmap.org/edit?lat=#{center.lat}&lon=#{center.lng}&zoom=17\" target=\"_blank\">Edit in Potlatch</a><br />"
+    popupText += "</p>"
+
     resLayer.bindPopup(popupText)
     resLayer
 

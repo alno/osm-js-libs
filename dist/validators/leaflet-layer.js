@@ -114,7 +114,18 @@
     };
 
     ValidatorsLayer.prototype.buildResult = function(validator, res) {
-      var errorText, obj, popupText, resLayer, _i, _len, _ref;
+      var bounds, center, errorText, ne, obj, popupText, resLayer, sw, _i, _len, _ref;
+      bounds = new L.LatLngBounds();
+      resLayer = new L.GeoJSON({
+        type: 'Feature',
+        geometry: res.geometry
+      });
+      resLayer._iterateLayers((function(l) {
+        return bounds.extend(l instanceof L.Marker ? l.getLatLng() : l.getBounds());
+      }), resLayer);
+      center = bounds.getCenter();
+      sw = bounds.getSouthWest();
+      ne = bounds.getNorthEast();
       errorText = res.text || validator.types[res.type].text;
       popupText = "<p>" + errorText + "</p>";
       if (res.objects) {
@@ -126,10 +137,10 @@
         }
         popupText += "</ul>";
       }
-      resLayer = new L.GeoJSON({
-        type: 'Feature',
-        geometry: res.geometry
-      });
+      popupText += "<p>";
+      popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=" + ne.lat + "&bottom=" + sw.lat + "&left=" + sw.lng + "&right=" + ne.lng + "\" target=\"josm\">Edit in JOSM</a><br />";
+      popupText += "<a href=\"http://openstreetmap.org/edit?lat=" + center.lat + "&lon=" + center.lng + "&zoom=17\" target=\"_blank\">Edit in Potlatch</a><br />";
+      popupText += "</p>";
       resLayer.bindPopup(popupText);
       return resLayer;
     };
