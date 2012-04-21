@@ -21,7 +21,7 @@
       var map = new L.Map('map');
       map.setView(new L.LatLng(57.1, 31.1), 7)
       map.addLayer(osmLayer);
-      map.addLayer(new OsmJs.Validators.LeafletLayer({validators: [{
+      map.addLayer(new OsmJs.Validators.LeafletLayer({validators: [/*{
         "name": "Отладочный валидатор",
         "url": "http://alno.name:4567/validate?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "offset_limit": true,
@@ -42,6 +42,13 @@
         "types": {
           "orphan_street": {"text": "Orphan street"}
         }
+      },*/{
+        "name": "Валидатор 4",
+        "url": "http://osm.alno.name/validators/zkir?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
+        "types": {
+          "orphan_street": {"text": "Orphan street"}
+        },
+        "jsonp": true
       }]}))
     </script>
   </body>

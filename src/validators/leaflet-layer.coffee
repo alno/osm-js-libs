@@ -4,35 +4,58 @@ class ValidatorsLayer
   @callbacks = {}
   @callbackCounter = 0
 
+  @activeXhr = []
+  @activeJsonp = []
+
+  @cancelRequests: ->
+    for xhr in @activeXhr
+      xhr.abort()
+
+    for el in @activeJsonp
+      el.src = undefined
+      document.getElementsByTagName('body')[0].removeChild(el)
+
+    @activeXhr = []
+    @activeJsonp = []
+
   @request: (url, validator, cb) ->
     if validator.jsonp
-      @jsonpRequest url, cb
+      @requestJsonp url, cb
     else
-      xhr = new XMLHttpRequest()
-      xhr.open 'GET', url, true
-      xhr.onreadystatechange = ->
-        if xhr.readyState == 4
-          if xhr.status == 200
-            cb(eval("(#{xhr.responseText})"))
+      @requestXhr url, cb
 
-      xhr.send()
+  @requestXhr: (url, cb) ->
+    xhr = new XMLHttpRequest()
+    xhr.open 'GET', url, true
+    xhr.onreadystatechange = ->
+      if xhr.readyState == 4
+        if xhr.status == 200
+          @activeXhr.splice(idx, 1) if (idx = @activeXhr.indexOf(xhr)) >= 0
+          cb(eval("(#{xhr.responseText})"))
 
-  @jsonpRequest: (url, cb) ->
+    xhr.send()
+    @activeXhr.push xhr
+
+  @requestJsonp: (url, cb) ->
+    el = document.createElement('script')
     counter = (@callbackCounter += 1)
     callback = "OsmJs.Validators.LeafletLayer.callbacks[#{counter}]"
 
     @callbacks[counter] = (data) =>
-      @callbacks[counter] = undefined
-      cb(data)
+      if (idx = @activeJsonp.indexOf(el)) >= 0
+        @activeJsonp.splice(idx, 1)
+        document.getElementsByTagName('body')[0].removeChild(el)
+        @callbacks[counter] = undefined
+        cb(data)
 
     delim = if url.indexOf('?') >= 0
       '&'
     else
       '?'
 
-    el = document.createElement('script')
     el.src = "#{url}#{delim}callback=#{callback}"
     document.getElementsByTagName('body')[0].appendChild(el)
+    @activeJsonp.push el
 
   constructor: (@options)->
     @layers = {}
@@ -48,16 +71,12 @@ class ValidatorsLayer
     for key, layer of @layers
       map.addLayer(layer)
 
-    # map.on('move', @limitedUpdate, @)
     map.on('moveend', @update, @)
-    map.on('viewreset', @update, @)
 
     @update()
 
   onRemove: (map) ->
-    map.off('viewreset', @update, @)
     map.off('moveend', @update, @)
-    map.off('move', @limitedUpdate, @)
 
     for key, layer of @layers
       map.removeLayer(layer)
@@ -65,6 +84,8 @@ class ValidatorsLayer
     @map = undefined
 
   update: ->
+    ValidatorsLayer.cancelRequests()
+
     for validator in @options.validators
       @updateValidator(validator)
 
@@ -79,9 +100,8 @@ class ValidatorsLayer
       .replace('{minlon}', sw.lng)
       .replace('{maxlon}', ne.lng)
 
-    layer = @layers[validator.url]
-
     ValidatorsLayer.request url, validator, (data) =>
+      layer = @layers[validator.url]
       map.removeLayer(layer)
       layer.clearLayers()
 
