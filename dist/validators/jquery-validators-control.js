@@ -23,7 +23,9 @@
       _ref1 = this.layer.validators;
       for (url in _ref1) {
         validator = _ref1[url];
-        this.validators.push(validator);
+        if (this.validators.indexOf(validator) < 0) {
+          this.validators.push(validator);
+        }
       }
       this.layer.on('validatoradd', function(e) {
         if (_this.validators.indexOf(e.validator) < 0) {

@@ -8,7 +8,7 @@ class JqueryValidatorsControl
       for validator in @options.validators
         @validators.push(validator)
 
-    for url, validator of @layer.validators
+    for url, validator of @layer.validators when @validators.indexOf(validator) < 0
       @validators.push(validator)
 
     @layer.on 'validatoradd', (e) =>
