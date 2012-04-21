@@ -22,7 +22,7 @@
       if (this.sources[source.url]) {
         this.sources[source.url] = source;
         if (this.map) {
-          this.updateValidator(source);
+          this.updateSource(source);
         }
         return this.fire('sourcechange', {
           source: source
@@ -36,7 +36,7 @@
         }
         if (this.map) {
           this.map.addLayer(this.sourceLayers[source.url]);
-          this.updateValidator(source);
+          this.updateSource(source);
         }
         return this.fire('sourceadd', {
           source: source
@@ -92,11 +92,11 @@
       _results = [];
       for (url in _ref1) {
         source = _ref1[url];
-        _results.push(this.updateValidator(source));
+        _results.push(this.updateSource(source));
       }
       return _results;
     },
-    updateValidator: function(source) {
+    updateSource: function(source) {
       var bounds, ne, sw, url,
         _this = this;
       bounds = this.map.getBounds();

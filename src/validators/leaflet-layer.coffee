@@ -14,7 +14,7 @@ Layer = L.Class.extend
   addSource: (source) ->
     if @sources[source.url]
       @sources[source.url] = source
-      @updateValidator(source) if @map
+      @updateSource(source) if @map
 
       @fire('sourcechange', {source: source})
     else
@@ -27,7 +27,7 @@ Layer = L.Class.extend
 
       if @map
         @map.addLayer(@sourceLayers[source.url])
-        @updateValidator(source)
+        @updateSource(source)
 
       @fire('sourceadd', {source: source})
 
@@ -69,9 +69,9 @@ Layer = L.Class.extend
     @sourceRequests = {}
 
     for url, source of @sources
-      @updateValidator(source)
+      @updateSource(source)
 
-  updateValidator: (source) ->
+  updateSource: (source) ->
     bounds = @map.getBounds()
     sw = bounds.getSouthWest()
     ne = bounds.getNorthEast()
