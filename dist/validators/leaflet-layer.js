@@ -5,15 +5,39 @@
   Layer = L.Class.extend({
     includes: L.Mixin.Events,
     initialize: function(options) {
-      var validator, _i, _len, _ref;
-      this.options = options;
+      var validator, _i, _len, _ref, _results;
+      this.options = options != null ? options : {};
       this.layers = {};
-      _ref = this.options.validators;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        validator = _ref[_i];
-        this.layers[validator.url] = new L.LayerGroup();
+      this.validators = {};
+      this.limitedUpdate = L.Util.limitExecByInterval(this.update, 3000, this);
+      if (this.options.validators) {
+        _ref = this.options.validators;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          validator = _ref[_i];
+          _results.push(this.addValidator(validator));
+        }
+        return _results;
       }
-      return this.limitedUpdate = L.Util.limitExecByInterval(this.update, 2000, this);
+    },
+    addValidator: function(validator) {
+      if (!this.validators[validator.url]) {
+        this.layers[validator.url] = new L.GeoJSON();
+      }
+      this.validators[validator.url] = validator;
+      if (this.map) {
+        this.map.addLayer(this.layers[validator.url]);
+        return this.updateValidator(validator);
+      }
+    },
+    removeValidator: function(validator) {
+      if (this.validators[validator.url]) {
+        if (this.map) {
+          this.map.removeLayer(this.layers[validator.url]);
+        }
+        this.layers[validator.url] = void 0;
+        return this.validators[validator.url] = void 0;
+      }
     },
     onAdd: function(map) {
       var key, layer, _ref;
@@ -37,12 +61,12 @@
       return this.map = void 0;
     },
     update: function() {
-      var validator, _i, _len, _ref, _results;
+      var url, validator, _ref, _results;
       Layer.Utils.cancelRequests();
-      _ref = this.options.validators;
+      _ref = this.validators;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        validator = _ref[_i];
+      for (url in _ref) {
+        validator = _ref[url];
         _results.push(this.updateValidator(validator));
       }
       return _results;

@@ -3,13 +3,28 @@ Layer = L.Class.extend
 
   includes: L.Mixin.Events
 
-  initialize: (@options)->
+  initialize: (@options = {})->
     @layers = {}
+    @validators = {}
+    @limitedUpdate = L.Util.limitExecByInterval(@update, 3000, @)
 
-    for validator in @options.validators
-      @layers[validator.url] = new L.LayerGroup()
+    if @options.validators
+      for validator in @options.validators
+        @addValidator(validator)
 
-    @limitedUpdate = L.Util.limitExecByInterval(@update, 2000, @)
+  addValidator: (validator) ->
+    @layers[validator.url] = new L.GeoJSON() unless @validators[validator.url]
+    @validators[validator.url] = validator
+
+    if @map
+      @map.addLayer(@layers[validator.url])
+      @updateValidator(validator)
+
+  removeValidator: (validator) ->
+    if @validators[validator.url]
+      @map.removeLayer(@layers[validator.url]) if @map
+      @layers[validator.url] = undefined
+      @validators[validator.url] = undefined
 
   onAdd: (map) ->
     @map = map
@@ -32,7 +47,7 @@ Layer = L.Class.extend
   update: ->
     Layer.Utils.cancelRequests()
 
-    for validator in @options.validators
+    for url, validator of @validators
       @updateValidator(validator)
 
   updateValidator: (validator) ->
