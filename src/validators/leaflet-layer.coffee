@@ -6,6 +6,7 @@ Layer = L.Class.extend
   initialize: (@options = {})->
     @layers = {}
     @validators = {}
+    @validatorRequests = {}
     @limitedUpdate = L.Util.limitExecByInterval(@update, 3000, @)
 
     if @options.validators
@@ -22,6 +23,10 @@ Layer = L.Class.extend
       @layers[validator.url] = new L.LayerGroup()
       @validators[validator.url] = validator
 
+      if @validatorRequests[validator.url]
+        @validatorRequests[validator.url].abort()
+        delete @validatorRequests[validator.url]
+
       if @map
         @map.addLayer(@layers[validator.url])
         @updateValidator(validator)
@@ -31,8 +36,14 @@ Layer = L.Class.extend
   removeValidator: (validator) ->
     if @validators[validator.url]
       @map.removeLayer(@layers[validator.url]) if @map
-      @layers[validator.url] = undefined
-      @validators[validator.url] = undefined
+
+      delete @layers[validator.url]
+      delete @validators[validator.url]
+
+      if @validatorRequests[validator.url]
+        @validatorRequests[validator.url].abort()
+        delete @validatorRequests[validator.url]
+
       @fire('validatorremove', {validator: validator})
 
   onAdd: (map) ->
@@ -54,7 +65,10 @@ Layer = L.Class.extend
     @map = undefined
 
   update: ->
-    Layer.Utils.cancelRequests()
+    for url, req of @validatorRequests
+      req.abort()
+
+    @validatorRequests = {}
 
     for url, validator of @validators
       @updateValidator(validator)
@@ -70,7 +84,9 @@ Layer = L.Class.extend
       .replace('{minlon}', sw.lng)
       .replace('{maxlon}', ne.lng)
 
-    Layer.Utils.request url, validator, (data) =>
+    @validatorRequests[validator.url] = Layer.Utils.request url, validator, (data) =>
+      delete @validatorRequests[validator.url]
+
       layer = @layers[validator.url]
       map.removeLayer(layer)
       layer.clearLayers()
@@ -110,20 +126,6 @@ Layer.Utils =
   callbacks: {}
   callbackCounter: 0
 
-  activeXhr: []
-  activeJsonp: []
-
-  cancelRequests: ->
-    for xhr in @activeXhr
-      xhr.abort()
-
-    for el in @activeJsonp
-      el.src = undefined
-      document.getElementsByTagName('body')[0].removeChild(el)
-
-    @activeXhr = []
-    @activeJsonp = []
-
   request: (url, validator, cb) ->
     if validator.jsonp
       @requestJsonp url, cb
@@ -136,23 +138,23 @@ Layer.Utils =
     xhr.onreadystatechange = ->
       if xhr.readyState == 4
         if xhr.status == 200
-          @activeXhr.splice(idx, 1) if (idx = @activeXhr.indexOf(xhr)) >= 0
           cb(eval("(#{xhr.responseText})"))
 
     xhr.send()
-    @activeXhr.push xhr
+    xhr
 
   requestJsonp: (url, cb) ->
     el = document.createElement('script')
     counter = (@callbackCounter += 1)
     callback = "OsmJs.Validators.LeafletLayer.Utils.callbacks[#{counter}]"
 
+    abort = ->
+      el.parentNode.removeChild(el) if el.parentNode
+
     @callbacks[counter] = (data) =>
-      if (idx = @activeJsonp.indexOf(el)) >= 0
-        @activeJsonp.splice(idx, 1)
-        document.getElementsByTagName('body')[0].removeChild(el)
-        @callbacks[counter] = undefined
-        cb(data)
+      document.getElementsByTagName('body')[0].removeChild(el)
+      delete @callbacks[counter]
+      cb(data)
 
     delim = if url.indexOf('?') >= 0
       '&'
@@ -161,7 +163,8 @@ Layer.Utils =
 
     el.src = "#{url}#{delim}callback=#{callback}"
     document.getElementsByTagName('body')[0].appendChild(el)
-    @activeJsonp.push el
+
+    {abort: abort}
 
 @OsmJs = {} unless @OsmJs
 @OsmJs.Validators = {} unless @OsmJs.Validators

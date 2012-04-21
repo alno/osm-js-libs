@@ -9,6 +9,7 @@
       this.options = options != null ? options : {};
       this.layers = {};
       this.validators = {};
+      this.validatorRequests = {};
       this.limitedUpdate = L.Util.limitExecByInterval(this.update, 3000, this);
       if (this.options.validators) {
         _ref = this.options.validators;
@@ -32,6 +33,10 @@
       } else {
         this.layers[validator.url] = new L.LayerGroup();
         this.validators[validator.url] = validator;
+        if (this.validatorRequests[validator.url]) {
+          this.validatorRequests[validator.url].abort();
+          delete this.validatorRequests[validator.url];
+        }
         if (this.map) {
           this.map.addLayer(this.layers[validator.url]);
           this.updateValidator(validator);
@@ -46,8 +51,12 @@
         if (this.map) {
           this.map.removeLayer(this.layers[validator.url]);
         }
-        this.layers[validator.url] = void 0;
-        this.validators[validator.url] = void 0;
+        delete this.layers[validator.url];
+        delete this.validators[validator.url];
+        if (this.validatorRequests[validator.url]) {
+          this.validatorRequests[validator.url].abort();
+          delete this.validatorRequests[validator.url];
+        }
         return this.fire('validatorremove', {
           validator: validator
         });
@@ -75,12 +84,17 @@
       return this.map = void 0;
     },
     update: function() {
-      var url, validator, _ref, _results;
-      Layer.Utils.cancelRequests();
-      _ref = this.validators;
-      _results = [];
+      var req, url, validator, _ref, _ref1, _results;
+      _ref = this.validatorRequests;
       for (url in _ref) {
-        validator = _ref[url];
+        req = _ref[url];
+        req.abort();
+      }
+      this.validatorRequests = {};
+      _ref1 = this.validators;
+      _results = [];
+      for (url in _ref1) {
+        validator = _ref1[url];
         _results.push(this.updateValidator(validator));
       }
       return _results;
@@ -92,8 +106,9 @@
       sw = bounds.getSouthWest();
       ne = bounds.getNorthEast();
       url = validator.url.replace('{minlat}', sw.lat).replace('{maxlat}', ne.lat).replace('{minlon}', sw.lng).replace('{maxlon}', ne.lng);
-      return Layer.Utils.request(url, validator, function(data) {
+      return this.validatorRequests[validator.url] = Layer.Utils.request(url, validator, function(data) {
         var layer, res, _i, _len, _ref;
+        delete _this.validatorRequests[validator.url];
         layer = _this.layers[validator.url];
         map.removeLayer(layer);
         layer.clearLayers();
@@ -141,24 +156,6 @@
   Layer.Utils = {
     callbacks: {},
     callbackCounter: 0,
-    activeXhr: [],
-    activeJsonp: [],
-    cancelRequests: function() {
-      var el, xhr, _i, _j, _len, _len1, _ref, _ref1;
-      _ref = this.activeXhr;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        xhr = _ref[_i];
-        xhr.abort();
-      }
-      _ref1 = this.activeJsonp;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        el = _ref1[_j];
-        el.src = void 0;
-        document.getElementsByTagName('body')[0].removeChild(el);
-      }
-      this.activeXhr = [];
-      return this.activeJsonp = [];
-    },
     request: function(url, validator, cb) {
       if (validator.jsonp) {
         return this.requestJsonp(url, cb);
@@ -171,38 +168,37 @@
       xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
       xhr.onreadystatechange = function() {
-        var idx;
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
-            if ((idx = this.activeXhr.indexOf(xhr)) >= 0) {
-              this.activeXhr.splice(idx, 1);
-            }
             return cb(eval("(" + xhr.responseText + ")"));
           }
         }
       };
       xhr.send();
-      return this.activeXhr.push(xhr);
+      return xhr;
     },
     requestJsonp: function(url, cb) {
-      var callback, counter, delim, el,
+      var abort, callback, counter, delim, el,
         _this = this;
       el = document.createElement('script');
       counter = (this.callbackCounter += 1);
       callback = "OsmJs.Validators.LeafletLayer.Utils.callbacks[" + counter + "]";
-      this.callbacks[counter] = function(data) {
-        var idx;
-        if ((idx = _this.activeJsonp.indexOf(el)) >= 0) {
-          _this.activeJsonp.splice(idx, 1);
-          document.getElementsByTagName('body')[0].removeChild(el);
-          _this.callbacks[counter] = void 0;
-          return cb(data);
+      abort = function() {
+        if (el.parentNode) {
+          return el.parentNode.removeChild(el);
         }
+      };
+      this.callbacks[counter] = function(data) {
+        document.getElementsByTagName('body')[0].removeChild(el);
+        delete _this.callbacks[counter];
+        return cb(data);
       };
       delim = url.indexOf('?') >= 0 ? '&' : '?';
       el.src = "" + url + delim + "callback=" + callback;
       document.getElementsByTagName('body')[0].appendChild(el);
-      return this.activeJsonp.push(el);
+      return {
+        abort: abort
+      };
     }
   };
 
