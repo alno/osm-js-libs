@@ -140,14 +140,7 @@
         type: 'Feature',
         geometry: res.geometry
       });
-      resLayer._iterateLayers(function(l) {
-        if (l.getBounds) {
-          bounds.extend(l.getBounds().getSouthWest());
-          return bounds.extend(l.getBounds().getNorthEast());
-        } else {
-          return bounds.extend(l.getLatLng());
-        }
-      }, resLayer);
+      Layer.Utils.extendBounds(bounds, resLayer);
       center = bounds.getCenter();
       sw = bounds.getSouthWest();
       ne = bounds.getNorthEast();
@@ -174,6 +167,20 @@
   Layer.Utils = {
     callbacks: {},
     callbackCounter: 0,
+    extendBounds: function(bounds, l) {
+      if (l.getBounds) {
+        bounds.extend(l.getBounds().getSouthWest());
+        return bounds.extend(l.getBounds().getNorthEast());
+      } else if (l.getLatLng) {
+        return bounds.extend(l.getLatLng());
+      } else if (l._iterateLayers) {
+        return l._iterateLayers(function(c) {
+          return Layer.Utils.extendBounds(bounds, c);
+        });
+      } else {
+        return console.log(["Can't determine layer bounds", l]);
+      }
+    },
     request: function(url, source, cb) {
       if (source.jsonp) {
         return this.requestJsonp(url, cb);

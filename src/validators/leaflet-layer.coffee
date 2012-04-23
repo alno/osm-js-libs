@@ -108,15 +108,7 @@ Layer = L.Class.extend
     bounds = new L.LatLngBounds()
     resLayer = new L.GeoJSON(type: 'Feature', geometry: res.geometry)
 
-    resLayer._iterateLayers(
-      (l) ->
-        if l.getBounds
-          bounds.extend l.getBounds().getSouthWest()
-          bounds.extend l.getBounds().getNorthEast()
-        else
-          bounds.extend l.getLatLng()
-      resLayer
-    )
+    Layer.Utils.extendBounds(bounds, resLayer)
 
     center = bounds.getCenter()
     sw = bounds.getSouthWest()
@@ -142,6 +134,18 @@ Layer = L.Class.extend
 Layer.Utils =
   callbacks: {}
   callbackCounter: 0
+
+  extendBounds: (bounds, l) ->
+    if l.getBounds
+      bounds.extend l.getBounds().getSouthWest()
+      bounds.extend l.getBounds().getNorthEast()
+    else if l.getLatLng
+      bounds.extend l.getLatLng()
+    else if l._iterateLayers
+      l._iterateLayers (c) ->
+        Layer.Utils.extendBounds(bounds, c)
+    else
+      console.log(["Can't determine layer bounds", l])
 
   request: (url, source, cb) ->
     if source.jsonp
