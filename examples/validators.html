@@ -35,9 +35,9 @@
         "name": "Адресный и роутинговый валидатор Zkir",
         "url": "http://osm.alno.name/validators/zkir?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
         "types": {
-          "city_without_population": {"text": "Город без населения"},
-          "city_without_place_polygon": {"text": "Город без полигональной границы"},
-          "city_without_place_node": {"text": "Город без точечного центра"},
+          "city_without_population": {"text": "Город без населения: {city}"},
+          "city_without_place_polygon": {"text": "Город без полигональной границы: {city}"},
+          "city_without_place_node": {"text": "Город без точечного центра: {city}"},
           "routing_subgraph": {"text": "Рутинговый подграф"},
           "routing_subgraph_trunk": {"text": "Рутинговый подграф на уровне trunk"},
           "routing_subgraph_primary": {"text": "Рутинговый подграф на уровне primary"},
@@ -46,11 +46,11 @@
           "duplicate_point": {"text": "Точка-дубликат"},
           "building_not_in_place": {"text": "Здание за пределами населенного пункта"},
           "address_without_street": {"text": "Адрес без улицы"},
-          "address_street_not_found": {"text": "Адресная улица не найдена"},
-          "address_street_not_in_place": {"text": "Улица из адреса не связана с городом"},
+          "address_street_not_found": {"text": "Адресная улица не найдена: {street}"},
+          "address_street_not_in_place": {"text": "Улица из адреса не связана с городом: {street}"},
           "address_by_territory": {"text": "Здание нумеруется по территории"},
-          "address_street_not_routed": {"text": "Не-рутинговая улица"},
-          "street_not_in_place": {"text": "Улица за пределами города"}
+          "address_street_not_routed": {"text": "Не-рутинговая улица: {street}"},
+          "street_not_in_place": {"text": "Улица за пределами города: {street}"}
         },
         "jsonp": true
       }]});

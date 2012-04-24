@@ -144,7 +144,7 @@
       center = bounds.getCenter();
       sw = bounds.getSouthWest();
       ne = bounds.getNorthEast();
-      errorText = res.text || source.types[res.type].text;
+      errorText = L.Util.template(res.text || source.types[res.type].text, res.params);
       popupText = "<p>" + errorText + "</p>";
       if (res.objects) {
         popupText += "<ul>";

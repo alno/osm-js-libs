@@ -113,7 +113,7 @@ Layer = L.Class.extend
     center = bounds.getCenter()
     sw = bounds.getSouthWest()
     ne = bounds.getNorthEast()
-    errorText = res.text or source.types[res.type].text
+    errorText = L.Util.template(res.text or source.types[res.type].text, res.params)
 
     popupText = "<p>#{errorText}</p>"
 
