@@ -50,7 +50,7 @@
     };
 
     JqueryValidatorSourcesControl.prototype.buildListItem = function(source) {
-      var cb, li,
+      var cb, li, tx,
         _this = this;
       cb = $('<input type="checkbox" />');
       if (this.layer.sources[source.url]) {
@@ -63,9 +63,11 @@
           return _this.layer.removeSource(source);
         }
       });
+      tx = $('<span />');
+      tx.text(source.name);
       li = $('<li />');
       li.append(cb);
-      li.append(source.name);
+      li.append(tx);
       return li;
     };
 

@@ -97,12 +97,12 @@ Layer = L.Class.extend
       delete @sourceRequests[source.url]
 
       layer = @sourceLayers[source.url]
-      map.removeLayer(layer)
+      @map.removeLayer(layer)
 
       layer.clearLayers()
       layer.addLayer(@buildResult(source, res)) for res in data.results when @disabledErrors.indexOf(res.type) < 0
 
-      map.addLayer(layer)
+      @map.addLayer(layer)
 
   buildResult: (source, res) ->
     bounds = new L.LatLngBounds()

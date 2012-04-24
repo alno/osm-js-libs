@@ -27,7 +27,7 @@
     };
 
     JqueryValidatorErrorsControl.prototype.buildListItem = function(error) {
-      var cb, childErr, li, ul, _i, _len, _ref,
+      var cb, childErr, li, tx, ul, _i, _len, _ref,
         _this = this;
       ul = $('<ul />');
       _ref = error.children || [];
@@ -64,9 +64,11 @@
         }
         return _results;
       });
+      tx = $('<span />');
+      tx.text(error.name);
       li = $('<li />');
       li.append(cb);
-      li.append(error.name);
+      li.append(tx);
       li.append(ul);
       return li;
     };

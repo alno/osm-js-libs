@@ -35,9 +35,12 @@ class JqueryValidatorErrorsControl
           else
             @layer.disableError(type)
 
+    tx = $('<span />')
+    tx.text(error.name)
+
     li = $('<li />')
     li.append(cb)
-    li.append(error.name)
+    li.append(tx)
     li.append(ul)
     li
 

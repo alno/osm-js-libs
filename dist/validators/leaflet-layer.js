@@ -121,7 +121,7 @@
         var layer, res, _i, _len, _ref;
         delete _this.sourceRequests[source.url];
         layer = _this.sourceLayers[source.url];
-        map.removeLayer(layer);
+        _this.map.removeLayer(layer);
         layer.clearLayers();
         _ref = data.results;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -130,7 +130,7 @@
             layer.addLayer(_this.buildResult(source, res));
           }
         }
-        return map.addLayer(layer);
+        return _this.map.addLayer(layer);
       });
     },
     buildResult: function(source, res) {

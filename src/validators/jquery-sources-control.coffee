@@ -34,9 +34,12 @@ class JqueryValidatorSourcesControl
       else
         @layer.removeSource(source)
 
+    tx = $('<span />')
+    tx.text(source.name)
+
     li = $('<li />')
     li.append(cb)
-    li.append(source.name)
+    li.append(tx)
     li
 
 
