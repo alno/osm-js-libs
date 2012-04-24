@@ -11,6 +11,12 @@
       this.sourceLayers = {};
       this.sourceRequests = {};
       this.disabledErrors = [];
+      this.i18n = this.options.i18n || {
+        objects: 'Objects',
+        params: 'Params',
+        edit_in_potlatch: 'Edit in Potlatch',
+        edit_in_josm: 'Edit in JOSM'
+      };
       _ref = this.options.sources || [];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -148,11 +154,11 @@
       popupText = "<div class=\"map-validation-error\">";
       popupText += "<p>" + errorText + "</p>";
       popupText += "<p>";
-      popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=" + ne.lat + "&bottom=" + sw.lat + "&left=" + sw.lng + "&right=" + ne.lng + "\" target=\"josm\">Edit in JOSM</a><br />";
-      popupText += "<a href=\"http://openstreetmap.org/edit?lat=" + center.lat + "&lon=" + center.lng + "&zoom=17\" target=\"_blank\">Edit in Potlatch</a><br />";
+      popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=" + ne.lat + "&bottom=" + sw.lat + "&left=" + sw.lng + "&right=" + ne.lng + "\" target=\"josm\">" + this.i18n.edit_in_josm + "</a><br />";
+      popupText += "<a href=\"http://openstreetmap.org/edit?lat=" + center.lat + "&lon=" + center.lng + "&zoom=17\" target=\"_blank\">" + this.i18n.edit_in_potlatch + "</a><br />";
       popupText += "</p>";
       if (res.objects) {
-        popupText += "<p>Objects</p>";
+        popupText += "<p>" + this.i18n.objects + "</p>";
         popupText += "<ul class=\"objects\">";
         _ref = res.objects;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -162,7 +168,7 @@
         popupText += "</ul>";
       }
       if (res.params) {
-        popupText += "<p>Params</p>";
+        popupText += "<p>" + this.i18n.params + "</p>";
         popupText += "<ul class=\"params\">";
         _ref1 = res.params;
         for (key in _ref1) {

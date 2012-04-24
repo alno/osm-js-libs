@@ -8,6 +8,7 @@ Layer = L.Class.extend
     @sourceLayers = {}
     @sourceRequests = {}
     @disabledErrors = []
+    @i18n = @options.i18n or { objects: 'Objects', params: 'Params', edit_in_potlatch: 'Edit in Potlatch', edit_in_josm: 'Edit in JOSM' }
 
     for source in (@options.sources or [])
       @addSource(source)
@@ -120,19 +121,19 @@ Layer = L.Class.extend
     popupText += "<p>#{errorText}</p>"
 
     popupText += "<p>"
-    popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=#{ne.lat}&bottom=#{sw.lat}&left=#{sw.lng}&right=#{ne.lng}\" target=\"josm\">Edit in JOSM</a><br />"
-    popupText += "<a href=\"http://openstreetmap.org/edit?lat=#{center.lat}&lon=#{center.lng}&zoom=17\" target=\"_blank\">Edit in Potlatch</a><br />"
+    popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=#{ne.lat}&bottom=#{sw.lat}&left=#{sw.lng}&right=#{ne.lng}\" target=\"josm\">#{@i18n.edit_in_josm}</a><br />"
+    popupText += "<a href=\"http://openstreetmap.org/edit?lat=#{center.lat}&lon=#{center.lng}&zoom=17\" target=\"_blank\">#{@i18n.edit_in_potlatch}</a><br />"
     popupText += "</p>"
 
     if res.objects
-      popupText += "<p>Objects</p>"
+      popupText += "<p>#{@i18n.objects}</p>"
       popupText += "<ul class=\"objects\">"
       for obj in res.objects
         popupText += "<li><a href=\"http://www.openstreetmap.org/browse/#{obj[0]}/#{obj[1]}\" target=\"_blank\">#{obj.join('-')}</a></li>"
       popupText += "</ul>"
 
     if res.params
-      popupText += "<p>Params</p>"
+      popupText += "<p>#{@i18n.params}</p>"
       popupText += "<ul class=\"params\">"
       for key, value of res.params
         popupText += "<li>#{key}: #{value}</li>"
