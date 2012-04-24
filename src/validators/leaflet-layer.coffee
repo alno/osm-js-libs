@@ -115,18 +115,30 @@ Layer = L.Class.extend
     ne = bounds.getNorthEast()
     errorText = L.Util.template(res.text or source.types[res.type].text, res.params)
 
-    popupText = "<p>#{errorText}</p>"
+    popupText = "<div class=\"map-validation-error\">"
 
-    if res.objects
-      popupText += "<ul>"
-      for obj in res.objects
-        popupText += "<li><a href=\"http://www.openstreetmap.org/browse/#{obj[0]}/#{obj[1]}\" target=\"_blank\">#{obj.join('-')}</a></li>"
-      popupText += "</ul>"
+    popupText += "<p>#{errorText}</p>"
 
     popupText += "<p>"
     popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=#{ne.lat}&bottom=#{sw.lat}&left=#{sw.lng}&right=#{ne.lng}\" target=\"josm\">Edit in JOSM</a><br />"
     popupText += "<a href=\"http://openstreetmap.org/edit?lat=#{center.lat}&lon=#{center.lng}&zoom=17\" target=\"_blank\">Edit in Potlatch</a><br />"
     popupText += "</p>"
+
+    if res.objects
+      popupText += "<p>Objects</p>"
+      popupText += "<ul class=\"objects\">"
+      for obj in res.objects
+        popupText += "<li><a href=\"http://www.openstreetmap.org/browse/#{obj[0]}/#{obj[1]}\" target=\"_blank\">#{obj.join('-')}</a></li>"
+      popupText += "</ul>"
+
+    if res.params
+      popupText += "<p>Params</p>"
+      popupText += "<ul class=\"params\">"
+      for key, value of res.params
+        popupText += "<li>#{key}: #{value}</li>"
+      popupText += "</ul>"
+
+    popupText += "</div>"
 
     resLayer.bindPopup(popupText)
     resLayer
