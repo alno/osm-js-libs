@@ -22,6 +22,10 @@ Layer = L.Class.extend
     @layer = new L.LayerGroup()
     @sourceUrl = "http://openweathermap.org/data/getrect?type={type}&lat1={minlat}&lat2={maxlat}&lng1={minlon}&lng2={maxlon}"
     @sourceRequests = {}
+
+    @clusterWidth = @options.clusterWidth or 150
+    @clusterHeight = @options.clusterHeight or 150
+
     @i18n = @options.i18n or @defaultI18n
 
     Layer.Utils.checkSunCal()
@@ -65,10 +69,21 @@ Layer = L.Class.extend
 
       @map.removeLayer(@layer)
       @layer.clearLayers()
-      @layer.addLayer(@buildResult(type, res)) for res in data.list
+
+      cells = {}
+
+      for st in data.list
+        ll = new L.LatLng(st.lat, st.lng)
+        p = @map.latLngToLayerPoint(ll)
+        key = "#{Math.round(p.x / @clusterWidth)}_#{Math.round(p.y / @clusterHeight)}"
+
+        unless cells[key]
+          cells[key] = true
+          @layer.addLayer(@buildMarker(type, st, ll))
+
       @map.addLayer(@layer)
 
-  buildResult: (type, st) ->
+  buildMarker: (type, st, ll) ->
     text = @weatherText(st)
     icon = @weatherIcon(st)
 
@@ -85,7 +100,7 @@ Layer = L.Class.extend
     popupContent += "</p>"
     popupContent += "</div>"
 
-    marker = new L.Marker new L.LatLng(st.lat, st.lng), icon: Layer.Utils.buildIcon(icon)
+    marker = new L.Marker ll, icon: Layer.Utils.buildIcon(icon)
     marker.bindPopup(popupContent)
     marker
 

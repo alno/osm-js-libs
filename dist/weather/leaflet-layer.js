@@ -24,6 +24,8 @@
       this.layer = new L.LayerGroup();
       this.sourceUrl = "http://openweathermap.org/data/getrect?type={type}&lat1={minlat}&lat2={maxlat}&lng1={minlon}&lng2={maxlon}";
       this.sourceRequests = {};
+      this.clusterWidth = this.options.clusterWidth || 150;
+      this.clusterHeight = this.options.clusterHeight || 150;
       this.i18n = this.options.i18n || this.defaultI18n;
       return Layer.Utils.checkSunCal();
     },
@@ -59,19 +61,26 @@
       ne = bounds.getNorthEast();
       url = this.sourceUrl.replace('{type}', type).replace('{minlat}', sw.lat).replace('{maxlat}', ne.lat).replace('{minlon}', sw.lng).replace('{maxlon}', ne.lng);
       return this.sourceRequests[type] = Layer.Utils.requestJsonp(url, function(data) {
-        var res, _i, _len, _ref;
+        var cells, key, ll, p, st, _i, _len, _ref;
         delete _this.sourceRequests[type];
         _this.map.removeLayer(_this.layer);
         _this.layer.clearLayers();
+        cells = {};
         _ref = data.list;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          res = _ref[_i];
-          _this.layer.addLayer(_this.buildResult(type, res));
+          st = _ref[_i];
+          ll = new L.LatLng(st.lat, st.lng);
+          p = _this.map.latLngToLayerPoint(ll);
+          key = "" + (Math.round(p.x / _this.clusterWidth)) + "_" + (Math.round(p.y / _this.clusterHeight));
+          if (!cells[key]) {
+            cells[key] = true;
+            _this.layer.addLayer(_this.buildMarker(type, st, ll));
+          }
         }
         return _this.map.addLayer(_this.layer);
       });
     },
-    buildResult: function(type, st) {
+    buildMarker: function(type, st, ll) {
       var icon, marker, popupContent, text;
       text = this.weatherText(st);
       icon = this.weatherIcon(st);
@@ -87,7 +96,7 @@
       popupContent += "" + this.i18n.wind + ": " + st.wind_ms + " m/s<br />";
       popupContent += "</p>";
       popupContent += "</div>";
-      marker = new L.Marker(new L.LatLng(st.lat, st.lng), {
+      marker = new L.Marker(ll, {
         icon: Layer.Utils.buildIcon(icon)
       });
       marker.bindPopup(popupContent);
