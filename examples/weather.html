@@ -23,7 +23,7 @@
       map.setView(new L.LatLng(57.1, 31.1), 8)
       map.addLayer(osmLayer);
 
-      var validatorsLayer = new OsmJs.Weather.LeafletLayer();
+      var validatorsLayer = new OsmJs.Weather.LeafletLayer({lang: 'ru'});
 
       map.addLayer(validatorsLayer);
     </script>

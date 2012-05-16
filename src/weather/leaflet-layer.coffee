@@ -2,19 +2,35 @@
 Layer = L.Class.extend
 
   defaultI18n:
-    currentTemperature: "Temperature"
-    maximumTemperature: "Max. temp"
-    minimumTemperature: "Min. temp"
-    humidity: "Humidity"
-    wind: "Wind"
-    show: "Snow"
-    snow_possible: "Snow possible"
-    rain: "Rain"
-    rain_possible: "Rain possible"
-    icerain: "Ice rain"
-    rime: "Rime"
-    rime_possible: "Rime"
-    clear: "Clear"
+    en:
+      currentTemperature: "Temperature"
+      maximumTemperature: "Max. temp"
+      minimumTemperature: "Min. temp"
+      humidity: "Humidity"
+      wind: "Wind"
+      show: "Snow"
+      snow_possible: "Snow possible"
+      rain: "Rain"
+      rain_possible: "Rain possible"
+      icerain: "Ice rain"
+      rime: "Rime"
+      rime_possible: "Rime"
+      clear: "Clear"
+
+    ru:
+      currentTemperature: "Температура"
+      maximumTemperature: "Макс. темп"
+      minimumTemperature: "Мин. темп"
+      humidity: "Влажность"
+      wind: "Ветер"
+      show: "Снег"
+      snow_possible: "Возможен снег"
+      rain: "Дождь"
+      rain_possible: "Возможен дождь"
+      icerain: "Ледяной дождь"
+      rime: "Гололед"
+      rime_possible: "Возможен гололед"
+      clear: "Ясно"
 
   includes: L.Mixin.Events
 
@@ -26,7 +42,7 @@ Layer = L.Class.extend
     @clusterWidth = @options.clusterWidth or 150
     @clusterHeight = @options.clusterHeight or 150
 
-    @i18n = @options.i18n or @defaultI18n
+    @i18n = @options.i18n or @defaultI18n[@options.lang or 'en']
 
     Layer.Utils.checkSunCal()
 

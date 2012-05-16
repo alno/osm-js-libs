@@ -4,19 +4,36 @@
 
   Layer = L.Class.extend({
     defaultI18n: {
-      currentTemperature: "Temperature",
-      maximumTemperature: "Max. temp",
-      minimumTemperature: "Min. temp",
-      humidity: "Humidity",
-      wind: "Wind",
-      show: "Snow",
-      snow_possible: "Snow possible",
-      rain: "Rain",
-      rain_possible: "Rain possible",
-      icerain: "Ice rain",
-      rime: "Rime",
-      rime_possible: "Rime",
-      clear: "Clear"
+      en: {
+        currentTemperature: "Temperature",
+        maximumTemperature: "Max. temp",
+        minimumTemperature: "Min. temp",
+        humidity: "Humidity",
+        wind: "Wind",
+        show: "Snow",
+        snow_possible: "Snow possible",
+        rain: "Rain",
+        rain_possible: "Rain possible",
+        icerain: "Ice rain",
+        rime: "Rime",
+        rime_possible: "Rime",
+        clear: "Clear"
+      },
+      ru: {
+        currentTemperature: "Температура",
+        maximumTemperature: "Макс. темп",
+        minimumTemperature: "Мин. темп",
+        humidity: "Влажность",
+        wind: "Ветер",
+        show: "Снег",
+        snow_possible: "Возможен снег",
+        rain: "Дождь",
+        rain_possible: "Возможен дождь",
+        icerain: "Ледяной дождь",
+        rime: "Гололед",
+        rime_possible: "Возможен гололед",
+        clear: "Ясно"
+      }
     },
     includes: L.Mixin.Events,
     initialize: function(options) {
@@ -26,7 +43,7 @@
       this.sourceRequests = {};
       this.clusterWidth = this.options.clusterWidth || 150;
       this.clusterHeight = this.options.clusterHeight || 150;
-      this.i18n = this.options.i18n || this.defaultI18n;
+      this.i18n = this.options.i18n || this.defaultI18n[this.options.lang || 'en'];
       return Layer.Utils.checkSunCal();
     },
     onAdd: function(map) {
