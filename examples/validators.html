@@ -46,7 +46,7 @@
 
       var validatorsLayer = new OsmJs.Validators.LeafletLayer({sources: [{
         "name": "Адресный и роутинговый валидатор Zkir",
-        "url": "http://osm.alno.name/validators/zkir?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
+        "url": "http://osm.alno.name/validators/zkir?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}&types={filtered_types}",
         "types": {
           "city_without_population": {"text": "Город без населения: {city}"},
           "city_without_place_polygon": {"text": "Город без полигональной границы: {city}"},
@@ -65,7 +65,8 @@
           "address_street_not_routed": {"text": "Не-рутинговая улица: {street}"},
           "street_not_in_place": {"text": "Улица за пределами города: {street}"}
         },
-        "jsonp": true
+        "jsonp": true,
+        "filtered_types": true
       }], i18n: { objects: 'Объекты', params: 'Параметры', edit_in_potlatch: 'Редактировать в Potlatch', edit_in_josm: 'Редактировать в JOSM' }});
 
       $('#sources').validatorSourcesControl(validatorsLayer, {sources: [{

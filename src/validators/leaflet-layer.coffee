@@ -93,6 +93,7 @@ Layer = L.Class.extend
       .replace('{maxlat}', ne.lat)
       .replace('{minlon}', sw.lng)
       .replace('{maxlon}', ne.lng)
+      .replace('{filtered_types}', @getErrorTypes(source).join(','))
 
     @sourceRequests[source.url] = Layer.Utils.request url, source, (data) =>
       delete @sourceRequests[source.url]
@@ -104,6 +105,10 @@ Layer = L.Class.extend
       layer.addLayer(@buildResult(source, res)) for res in data.results when @disabledErrors.indexOf(res.type) < 0
 
       @map.addLayer(layer)
+
+  getErrorTypes: (source) ->
+    for type, desc of source.types when @disabledErrors.indexOf(type) < 0
+      type
 
   buildResult: (source, res) ->
     bounds = new L.LatLngBounds()
