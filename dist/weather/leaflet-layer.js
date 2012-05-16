@@ -60,6 +60,9 @@
       this.map.removeLayer(this.layer);
       return this.map = void 0;
     },
+    getAttribution: function() {
+      return 'Weather data provided by <a href="http://openweathermap.org/">OpenWeatherMap</a>.';
+    },
     update: function() {
       var req, url, _ref;
       _ref = this.sourceRequests;

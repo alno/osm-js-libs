@@ -60,6 +60,9 @@ Layer = L.Class.extend
     @map.removeLayer(@layer)
     @map = undefined
 
+  getAttribution: ->
+    'Weather data provided by <a href="http://openweathermap.org/">OpenWeatherMap</a>.'
+
   update: ->
     for url, req of @sourceRequests
       req.abort()
