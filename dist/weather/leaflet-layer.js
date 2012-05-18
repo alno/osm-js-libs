@@ -110,8 +110,8 @@
       popupContent += "<p>" + text + "</p>";
       popupContent += "<p>";
       popupContent += "" + this.i18n.currentTemperature + ": " + (this.toCelc(st.temp)) + " °C<br />";
-      popupContent += "" + this.i18n.maximumTemperature + ": " + (this.toCelc(st.temp_min)) + " °C<br />";
-      popupContent += "" + this.i18n.minimumTemperature + ": " + (this.toCelc(st.temp_max)) + " °C<br />";
+      popupContent += "" + this.i18n.maximumTemperature + ": " + (this.toCelc(st.temp_max)) + " °C<br />";
+      popupContent += "" + this.i18n.minimumTemperature + ": " + (this.toCelc(st.temp_min)) + " °C<br />";
       popupContent += "" + this.i18n.humidity + ": " + st.humidity + "<br />";
       popupContent += "" + this.i18n.wind + ": " + st.wind_ms + " m/s<br />";
       popupContent += "</p>";
