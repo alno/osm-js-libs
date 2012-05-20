@@ -113,11 +113,11 @@
       popupContent += "<h3>" + st.name + "</h3>";
       popupContent += "<p>" + weatherText + "</p>";
       popupContent += "<p>";
-      popupContent += "" + this.i18n.currentTemperature + ": " + (this.toCelc(st.temp)) + " °C<br />";
-      popupContent += "" + this.i18n.maximumTemperature + ": " + (this.toCelc(st.temp_max)) + " °C<br />";
-      popupContent += "" + this.i18n.minimumTemperature + ": " + (this.toCelc(st.temp_min)) + " °C<br />";
-      popupContent += "" + this.i18n.humidity + ": " + st.humidity + "<br />";
-      popupContent += "" + this.i18n.wind + ": " + st.wind_ms + " m/s<br />";
+      popupContent += "" + this.i18n.currentTemperature + ":&nbsp;" + (this.toCelc(st.temp)) + "&nbsp;°C<br />";
+      popupContent += "" + this.i18n.maximumTemperature + ":&nbsp;" + (this.toCelc(st.temp_max)) + "&nbsp;°C<br />";
+      popupContent += "" + this.i18n.minimumTemperature + ":&nbsp;" + (this.toCelc(st.temp_min)) + "&nbsp;°C<br />";
+      popupContent += "" + this.i18n.humidity + ":&nbsp;" + st.humidity + "<br />";
+      popupContent += "" + this.i18n.wind + ":&nbsp;" + st.wind_ms + "&nbsp;m/s<br />";
       popupContent += "</p>";
       popupContent += "</div>";
       typeIcon = this.typeIcon(st);
@@ -172,13 +172,13 @@
     weatherText: function(st) {
       if (st.prsp_type === '1') {
         if (st.prcp !== 0 && st.prcp > 0) {
-          return "" + this.i18n.snow + " ( " + st.prcp + " mm )";
+          return "" + this.i18n.snow + "&nbsp;(" + st.prcp + "&nbsp;mm)";
         } else {
           return this.i18n.snow_possible;
         }
       } else if (st.prsp_type === '2') {
         if (st.prcp !== 0 && st.prcp > 0) {
-          return "" + this.i18n.rime + " ( " + st.prcp + " mm )";
+          return "" + this.i18n.rime + "&nbsp;(" + st.prcp + "&nbsp;mm)";
         } else {
           return this.i18n.rime_possible;
         }
@@ -186,7 +186,7 @@
         return this.i18n.icerain;
       } else if (st.prsp_type === '4') {
         if (st.prcp !== 0 && st.prcp > 0) {
-          return "" + this.i18n.rain + " ( " + st.prcp + " mm )";
+          return "" + this.i18n.rain + "&nbsp;(" + st.prcp + "&nbsp;mm)";
         } else {
           return this.i18n.rain_possible;
         }

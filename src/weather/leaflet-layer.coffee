@@ -112,11 +112,11 @@ Layer = L.Class.extend
     popupContent += "<h3>#{st.name}</h3>"
     popupContent += "<p>#{weatherText}</p>"
     popupContent += "<p>"
-    popupContent += "#{@i18n.currentTemperature}: #{@toCelc(st.temp)} °C<br />"
-    popupContent += "#{@i18n.maximumTemperature}: #{@toCelc(st.temp_max)} °C<br />"
-    popupContent += "#{@i18n.minimumTemperature}: #{@toCelc(st.temp_min)} °C<br />"
-    popupContent += "#{@i18n.humidity}: #{st.humidity}<br />"
-    popupContent += "#{@i18n.wind}: #{st.wind_ms} m/s<br />"
+    popupContent += "#{@i18n.currentTemperature}:&nbsp;#{@toCelc(st.temp)}&nbsp;°C<br />"
+    popupContent += "#{@i18n.maximumTemperature}:&nbsp;#{@toCelc(st.temp_max)}&nbsp;°C<br />"
+    popupContent += "#{@i18n.minimumTemperature}:&nbsp;#{@toCelc(st.temp_min)}&nbsp;°C<br />"
+    popupContent += "#{@i18n.humidity}:&nbsp;#{st.humidity}<br />"
+    popupContent += "#{@i18n.wind}:&nbsp;#{st.wind_ms}&nbsp;m/s<br />"
     popupContent += "</p>"
     popupContent += "</div>"
 
@@ -168,19 +168,19 @@ Layer = L.Class.extend
 
     if st.prsp_type == '1'
       if  st.prcp!=0 and st.prcp > 0
-        "#{@i18n.snow} ( #{st.prcp} mm )"
+        "#{@i18n.snow}&nbsp;(#{st.prcp}&nbsp;mm)"
       else
         @i18n.snow_possible
     else if st.prsp_type == '2'
       if  st.prcp!=0 and st.prcp > 0
-        "#{@i18n.rime} ( #{st.prcp} mm )"
+        "#{@i18n.rime}&nbsp;(#{st.prcp}&nbsp;mm)"
       else
         @i18n.rime_possible
     else if st.prsp_type == '3'
       @i18n.icerain
     else if st.prsp_type == '4'
       if  st.prcp!=0 and st.prcp > 0
-        "#{@i18n.rain} ( #{st.prcp} mm )"
+        "#{@i18n.rain}&nbsp;(#{st.prcp}&nbsp;mm)"
       else
         @i18n.rain_possible
     else
