@@ -99,18 +99,18 @@ Layer = L.Class.extend
         cells[key] = st if not cells[key] or parseInt(cells[key].rang) < parseInt(st.rang)
 
       for key, st of cells
-        @layer.addLayer(@buildMarker(type, st, new L.LatLng(st.lat, st.lng)))
+        @layer.addLayer(@buildMarker(st, new L.LatLng(st.lat, st.lng)))
 
       @map.addLayer(@layer)
 
-  buildMarker: (type, st, ll) ->
-    text = @weatherText(st)
-    icon = @weatherIcon(st)
+  buildMarker: (st, ll) ->
+    weatherText = @weatherText(st)
+    weatherIcon = @weatherIcon(st)
 
     popupContent = "<div class=\"weather-place\">"
-    popupContent += "<img height=\"38\" width=\"45\" style=\"border: none; float: right;\" alt=\"#{text}\" src=\"#{icon}\" />"
+    popupContent += "<img height=\"38\" width=\"45\" style=\"border: none; float: right;\" alt=\"#{weatherText}\" src=\"#{weatherIcon}\" />"
     popupContent += "<h3>#{st.name}</h3>"
-    popupContent += "<p>#{text}</p>"
+    popupContent += "<p>#{weatherText}</p>"
     popupContent += "<p>"
     popupContent += "#{@i18n.currentTemperature}: #{@toCelc(st.temp)} °C<br />"
     popupContent += "#{@i18n.maximumTemperature}: #{@toCelc(st.temp_max)} °C<br />"
@@ -120,7 +120,14 @@ Layer = L.Class.extend
     popupContent += "</p>"
     popupContent += "</div>"
 
-    marker = new L.Marker ll, icon: Layer.Utils.buildIcon(icon)
+    typeIcon = @typeIcon(st)
+
+    markerIcon = if typeIcon
+      Layer.Utils.buildTypeIcon(typeIcon)
+    else
+      Layer.Utils.buildWeatherIcon(weatherIcon)
+
+    marker = new L.Marker ll, icon: markerIcon
     marker.bindPopup(popupContent)
     marker
 
@@ -149,6 +156,13 @@ Layer = L.Class.extend
         img = '09'
 
     "http://openweathermap.org/images/icons60/#{img}.png"
+
+  typeIcon: (st) ->
+    if st.datatype == 'station'
+      if st.type == '1'
+        "http://openweathermap.org/images/list-icon-3.png"
+      else if st.type == '2'
+        "http://openweathermap.org/images/list-icon-2.png"
 
   weatherText: (st) ->
 
@@ -188,10 +202,11 @@ Layer = L.Class.extend
 Layer.Utils =
   callbacks: {}
   callbackCounter: 0
-  iconCache: {}
+  typeIconCache: {}
+  weatherIconCache: {}
 
-  buildIcon: (url) ->
-    return @iconCache[url] if @iconCache[url]
+  buildWeatherIcon: (url) ->
+    return @weatherIconCache[url] if @weatherIconCache[url]
 
     iconClass = L.Icon.extend
       iconUrl: url
@@ -201,11 +216,28 @@ Layer.Utils =
 
       options:
         iconUrl: url
-        iconSize: new L.Point(45, 45)
-        iconAnchor: new L.Point(23, 23)
+        iconSize: new L.Point(60, 50)
+        iconAnchor: new L.Point(30, 30)
         popupAnchor: new L.Point(0, -25)
 
-    @iconCache[url] = new iconClass()
+    @weatherIconCache[url] = new iconClass()
+
+  buildTypeIcon: (url) ->
+    return @typeIconCache[url] if @typeIconCache[url]
+
+    iconClass = L.Icon.extend
+      iconUrl: url
+      iconSize: new L.Point(24, 24)
+      iconAnchor: new L.Point(12, 12)
+      popupAnchor: new L.Point(0, -12)
+
+      options:
+        iconUrl: url
+        iconSize: new L.Point(23, 24)
+        iconAnchor: new L.Point(12, 12)
+        popupAnchor: new L.Point(0, -12)
+
+    @typeIconCache[url] = new iconClass()
 
   checkSunCal: ->
     return if SunCalc?
