@@ -42,6 +42,7 @@ Layer = L.Class.extend
     @clusterWidth = @options.clusterWidth or 150
     @clusterHeight = @options.clusterHeight or 150
 
+    @type = @options.type or 'city'
     @i18n = @options.i18n or @defaultI18n[@options.lang or 'en']
 
     Layer.Utils.checkSunCal()
@@ -69,7 +70,7 @@ Layer = L.Class.extend
 
     @sourceRequests = {}
 
-    @updateType 'city'
+    @updateType @type
 
   updateType: (type) ->
     bounds = @map.getBounds()
@@ -95,10 +96,10 @@ Layer = L.Class.extend
         ll = new L.LatLng(st.lat, st.lng)
         p = @map.latLngToLayerPoint(ll)
         key = "#{Math.round(p.x / @clusterWidth)}_#{Math.round(p.y / @clusterHeight)}"
+        cells[key] = st if not cells[key] or parseInt(cells[key].rang) < parseInt(st.rang)
 
-        unless cells[key]
-          cells[key] = true
-          @layer.addLayer(@buildMarker(type, st, ll))
+      for key, st of cells
+        @layer.addLayer(@buildMarker(type, st, new L.LatLng(st.lat, st.lng)))
 
       @map.addLayer(@layer)
 

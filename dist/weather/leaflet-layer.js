@@ -43,6 +43,7 @@
       this.sourceRequests = {};
       this.clusterWidth = this.options.clusterWidth || 150;
       this.clusterHeight = this.options.clusterHeight || 150;
+      this.type = this.options.type || 'city';
       this.i18n = this.options.i18n || this.defaultI18n[this.options.lang || 'en'];
       return Layer.Utils.checkSunCal();
     },
@@ -71,7 +72,7 @@
         req.abort();
       }
       this.sourceRequests = {};
-      return this.updateType('city');
+      return this.updateType(this.type);
     },
     updateType: function(type) {
       var bounds, ne, sw, url,
@@ -92,10 +93,13 @@
           ll = new L.LatLng(st.lat, st.lng);
           p = _this.map.latLngToLayerPoint(ll);
           key = "" + (Math.round(p.x / _this.clusterWidth)) + "_" + (Math.round(p.y / _this.clusterHeight));
-          if (!cells[key]) {
-            cells[key] = true;
-            _this.layer.addLayer(_this.buildMarker(type, st, ll));
+          if (!cells[key] || parseInt(cells[key].rang) < parseInt(st.rang)) {
+            cells[key] = st;
           }
+        }
+        for (key in cells) {
+          st = cells[key];
+          _this.layer.addLayer(_this.buildMarker(type, st, new L.LatLng(st.lat, st.lng)));
         }
         return _this.map.addLayer(_this.layer);
       });
