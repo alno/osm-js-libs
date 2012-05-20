@@ -114,8 +114,12 @@
       popupContent += "<p>" + weatherText + "</p>";
       popupContent += "<p>";
       popupContent += "" + this.i18n.currentTemperature + ":&nbsp;" + (this.toCelc(st.temp)) + "&nbsp;°C<br />";
-      popupContent += "" + this.i18n.maximumTemperature + ":&nbsp;" + (this.toCelc(st.temp_max)) + "&nbsp;°C<br />";
-      popupContent += "" + this.i18n.minimumTemperature + ":&nbsp;" + (this.toCelc(st.temp_min)) + "&nbsp;°C<br />";
+      if (st.temp_max) {
+        popupContent += "" + this.i18n.maximumTemperature + ":&nbsp;" + (this.toCelc(st.temp_max)) + "&nbsp;°C<br />";
+      }
+      if (st.temp_min) {
+        popupContent += "" + this.i18n.minimumTemperature + ":&nbsp;" + (this.toCelc(st.temp_min)) + "&nbsp;°C<br />";
+      }
       popupContent += "" + this.i18n.humidity + ":&nbsp;" + st.humidity + "<br />";
       popupContent += "" + this.i18n.wind + ":&nbsp;" + st.wind_ms + "&nbsp;m/s<br />";
       popupContent += "</p>";
