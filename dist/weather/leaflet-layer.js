@@ -230,11 +230,13 @@
         iconUrl: url,
         iconSize: new L.Point(60, 50),
         iconAnchor: new L.Point(30, 30),
+        shadowSize: new L.Point(0, 0),
         popupAnchor: new L.Point(0, -25),
         options: {
           iconUrl: url,
           iconSize: new L.Point(60, 50),
           iconAnchor: new L.Point(30, 30),
+          shadowSize: new L.Point(0, 0),
           popupAnchor: new L.Point(0, -25)
         }
       });
@@ -249,11 +251,13 @@
         iconUrl: url,
         iconSize: new L.Point(24, 24),
         iconAnchor: new L.Point(12, 12),
+        shadowSize: new L.Point(0, 0),
         popupAnchor: new L.Point(0, -12),
         options: {
           iconUrl: url,
           iconSize: new L.Point(23, 24),
           iconAnchor: new L.Point(12, 12),
+          shadowSize: new L.Point(0, 0),
           popupAnchor: new L.Point(0, -12)
         }
       });
