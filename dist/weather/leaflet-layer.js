@@ -73,6 +73,10 @@
       this.clusterHeight = this.options.clusterHeight || 150;
       this.type = this.options.type || 'city';
       this.i18n = this.options.i18n || this.defaultI18n[this.options.lang || 'en'];
+      this.temperatureDigits = this.options.temperatureDigits;
+      if (this.temperatureDigits == null) {
+        this.temperatureDigits = 2;
+      }
       return Layer.Utils.checkSunCal();
     },
     onAdd: function(map) {
@@ -248,7 +252,9 @@
       }
     },
     toCelc: function(t) {
-      return Math.round((t - 273.15) * 100) / 100;
+      var p;
+      p = Math.pow(10, this.temperatureDigits);
+      return Math.round((t - 273.15) * p) / p;
     }
   });
 

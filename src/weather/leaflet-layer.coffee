@@ -70,6 +70,8 @@ Layer = L.Class.extend
 
     @type = @options.type or 'city'
     @i18n = @options.i18n or @defaultI18n[@options.lang or 'en']
+    @temperatureDigits = @options.temperatureDigits
+    @temperatureDigits = 2 unless @temperatureDigits?
 
     Layer.Utils.checkSunCal()
 
@@ -223,7 +225,8 @@ Layer = L.Class.extend
       'n'
 
   toCelc: (t) ->
-    Math.round((t - 273.15)*100)/100
+    p = Math.pow(10, @temperatureDigits)
+    Math.round((t - 273.15) * p) / p
 
 Layer.Utils =
   callbacks: {}
