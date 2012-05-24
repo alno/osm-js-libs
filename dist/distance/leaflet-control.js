@@ -31,6 +31,7 @@
           return _this.activate();
         }
       });
+      this.poly.on('edit', this.onEdited);
       this.map.addLayer(this.poly);
     }
 
@@ -90,6 +91,11 @@
         this.start.on('click', function() {
           if (_this.poly.getLatLngs().length > 1) {
             _this.poly.spliceLatLngs(0, 1);
+            if (_this.poly.editing != null) {
+              _this.poly.editing.disable();
+              _this.poly.editing.enable();
+              _this.poly.fire('edit');
+            }
             return _this.onEdited();
           }
         });
@@ -101,6 +107,11 @@
         this.finish.on('click', function() {
           if (_this.poly.getLatLngs().length > 1) {
             _this.poly.spliceLatLngs(-1, 1);
+            if (_this.poly.editing != null) {
+              _this.poly.editing.disable();
+              _this.poly.editing.enable();
+              _this.poly.fire('edit');
+            }
             return _this.onEdited();
           }
         });

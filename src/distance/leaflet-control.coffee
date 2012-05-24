@@ -9,6 +9,7 @@ class DistancePath
         @passivate()
       else
         @activate()
+    @poly.on 'edit', @onEdited
 
     @map.addLayer(@poly)
 
@@ -50,6 +51,10 @@ class DistancePath
       @start.on 'click', =>
         if @poly.getLatLngs().length > 1
           @poly.spliceLatLngs(0, 1)
+          if @poly.editing?
+            @poly.editing.disable()
+            @poly.editing.enable()
+            @poly.fire('edit')
           @onEdited()
 
       @map.addLayer(@start)
@@ -60,6 +65,10 @@ class DistancePath
       @finish.on 'click', =>
         if @poly.getLatLngs().length > 1
           @poly.spliceLatLngs(-1, 1)
+          if @poly.editing?
+            @poly.editing.disable()
+            @poly.editing.enable()
+            @poly.fire('edit')
           @onEdited()
 
       @map.addLayer(@finish)
