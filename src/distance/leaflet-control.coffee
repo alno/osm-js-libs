@@ -18,9 +18,6 @@ class DistancePath
     @poly.editing.enable() if @poly.editing?
     @poly.setStyle @control.options.activeStyle
 
-    @map.addLayer @start if @start
-    @map.addLayer @finish if @finish
-
     @map.on 'click', @onMapClick
     @control.activate(@)
 
@@ -29,49 +26,16 @@ class DistancePath
     @poly.editing.disable() if @poly?.editing?
     @poly.setStyle @control.options.passiveStyle
 
-    @map.removeLayer @start if @start
-    @map.removeLayer @finish if @finish
-
     @map.off 'click', @onMapClick
     @control.passivate()
 
   remove: =>
     @passivate()
     @map.removeLayer(@poly)
-    @map.removeLayer(@start) if @start
-    @map.removeLayer(@finish) if @finish
     @map.removeLayer(@popup) if @popup
 
   onMapClick: (e) =>
     @poly.addLatLng(e.latlng)
-
-    unless @start
-      @start = new L.CircleMarker(e.latlng, @control.options.activeStyle)
-      @start.setRadius(5)
-      @start.on 'click', =>
-        if @poly.getLatLngs().length > 1
-          @poly.spliceLatLngs(0, 1)
-          if @poly.editing?
-            @poly.editing.disable()
-            @poly.editing.enable()
-            @poly.fire('edit')
-          @onEdited()
-
-      @map.addLayer(@start)
-
-    unless @finish
-      @finish = new L.CircleMarker(e.latlng, @control.options.activeStyle)
-      @finish.setRadius(7)
-      @finish.on 'click', =>
-        if @poly.getLatLngs().length > 1
-          @poly.spliceLatLngs(-1, 1)
-          if @poly.editing?
-            @poly.editing.disable()
-            @poly.editing.enable()
-            @poly.fire('edit')
-          @onEdited()
-
-      @map.addLayer(@finish)
 
     unless @popup
       @popup = new L.Popup()
@@ -87,9 +51,6 @@ class DistancePath
 
   onEdited: =>
     points = @poly.getLatLngs()
-
-    @start.setLatLng(points[0])
-    @finish.setLatLng(points[points.length-1])
 
     @popup.setContent(@formatDistance(@calculateDistance(points)))
     @popup.setLatLng(points[points.length-1])

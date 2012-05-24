@@ -41,12 +41,6 @@
         this.poly.editing.enable();
       }
       this.poly.setStyle(this.control.options.activeStyle);
-      if (this.start) {
-        this.map.addLayer(this.start);
-      }
-      if (this.finish) {
-        this.map.addLayer(this.finish);
-      }
       this.map.on('click', this.onMapClick);
       return this.control.activate(this);
     };
@@ -58,12 +52,6 @@
         this.poly.editing.disable();
       }
       this.poly.setStyle(this.control.options.passiveStyle);
-      if (this.start) {
-        this.map.removeLayer(this.start);
-      }
-      if (this.finish) {
-        this.map.removeLayer(this.finish);
-      }
       this.map.off('click', this.onMapClick);
       return this.control.passivate();
     };
@@ -71,52 +59,13 @@
     DistancePath.prototype.remove = function() {
       this.passivate();
       this.map.removeLayer(this.poly);
-      if (this.start) {
-        this.map.removeLayer(this.start);
-      }
-      if (this.finish) {
-        this.map.removeLayer(this.finish);
-      }
       if (this.popup) {
         return this.map.removeLayer(this.popup);
       }
     };
 
     DistancePath.prototype.onMapClick = function(e) {
-      var _this = this;
       this.poly.addLatLng(e.latlng);
-      if (!this.start) {
-        this.start = new L.CircleMarker(e.latlng, this.control.options.activeStyle);
-        this.start.setRadius(5);
-        this.start.on('click', function() {
-          if (_this.poly.getLatLngs().length > 1) {
-            _this.poly.spliceLatLngs(0, 1);
-            if (_this.poly.editing != null) {
-              _this.poly.editing.disable();
-              _this.poly.editing.enable();
-              _this.poly.fire('edit');
-            }
-            return _this.onEdited();
-          }
-        });
-        this.map.addLayer(this.start);
-      }
-      if (!this.finish) {
-        this.finish = new L.CircleMarker(e.latlng, this.control.options.activeStyle);
-        this.finish.setRadius(7);
-        this.finish.on('click', function() {
-          if (_this.poly.getLatLngs().length > 1) {
-            _this.poly.spliceLatLngs(-1, 1);
-            if (_this.poly.editing != null) {
-              _this.poly.editing.disable();
-              _this.poly.editing.enable();
-              _this.poly.fire('edit');
-            }
-            return _this.onEdited();
-          }
-        });
-        this.map.addLayer(this.finish);
-      }
       if (!this.popup) {
         this.popup = new L.Popup();
         this.popup.setLatLng(e.latlng);
@@ -133,8 +82,6 @@
     DistancePath.prototype.onEdited = function() {
       var points;
       points = this.poly.getLatLngs();
-      this.start.setLatLng(points[0]);
-      this.finish.setLatLng(points[points.length - 1]);
       this.popup.setContent(this.formatDistance(this.calculateDistance(points)));
       return this.popup.setLatLng(points[points.length - 1]);
     };
