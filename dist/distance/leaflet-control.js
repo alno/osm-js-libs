@@ -197,7 +197,7 @@
 
   })();
 
-  this.L.Control.Distance = this.L.Control.extend({
+  this.L.Control.Distance = this.L.Class.extend({
     options: {
       position: 'topleft',
       activeStyle: {
@@ -208,7 +208,13 @@
       }
     },
     onAdd: function(map) {
-      return new DistanceControl(map, this.options).container;
+      return this.container = new DistanceControl(map, this.options).container;
+    },
+    getContainer: function() {
+      return this.container;
+    },
+    getPosition: function() {
+      return L.Control.Position.TOP_LEFT;
     }
   });
 

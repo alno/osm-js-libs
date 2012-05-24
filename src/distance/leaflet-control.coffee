@@ -133,7 +133,7 @@ class DistanceControl
     L.DomUtil.removeClass @link, 'active'
     @path = null
 
-@L.Control.Distance = @L.Control.extend
+@L.Control.Distance = @L.Class.extend
 
   options:
     position: 'topleft'
@@ -145,4 +145,10 @@ class DistanceControl
       color: 'blue'
 
   onAdd: (map) ->
-    new DistanceControl(map, @options).container
+    @container = new DistanceControl(map, @options).container
+
+  getContainer: ->
+    @container
+
+  getPosition: ->
+    L.Control.Position.TOP_LEFT
