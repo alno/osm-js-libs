@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Leaflet distance example</title>
+
+    <link rel="stylesheet" href="http://leaflet.cloudmade.com/dist/leaflet.css" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="http://leaflet.cloudmade.com/dist/leaflet.ie.css" /><![endif]-->
+    <script src="http://leaflet.cloudmade.com/dist/leaflet.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+    <script src="../dist/distance/leaflet-control.js"></script>
+
+    <style>
+      .leaflet-control-distance {
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+    padding: 5px;
+  background: rgba(0, 0, 0, 0.25);
+      }
+
+      .leaflet-control-distance a {
+  background-color: rgba(255, 255, 255, 0.75);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-image: url(http://png-5.findicons.com/files//icons/1686/led/16/ruler_2.png);
+  display: block;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  width: 19px;
+  height: 19px;
+      }
+
+      .leaflet-control-distance a:hover {
+
+  background-color: #fff;
+      }
+
+      .leaflet-control-distance a.active {
+background-color: rgba(255, 255, 0, 0.75);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" style="width: 100%; height: 100%"></div>
+
+    <script>
+      var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          osmAttribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+          osmLayer = new L.TileLayer(osmUrl, {maxZoom: 18, attribution: osmAttribution});
+
+      var map = new L.Map('map');
+      map.setView(new L.LatLng(57.1, 31.1), 8)
+      map.addLayer(osmLayer);
+      map.addControl(new L.Control.Distance());
+    </script>
+  </body>
+</html>
