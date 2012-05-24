@@ -22,6 +22,12 @@ Where example config is:
       }]
     }
 
+### OpenWeatherMap weather layer
+
+### Leaflet distance control
+
+Icon for distance control from here: http://findicons.com/icon/178351/ruler_2
+
 ## Building
 
 Install coffee-script first:

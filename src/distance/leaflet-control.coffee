@@ -15,6 +15,10 @@ class DistancePath
   activate: =>
     @active = true
     @poly.editing.enable() if @poly.editing?
+    @poly.setStyle @control.options.activeStyle
+
+    @map.addLayer @start if @start
+    @map.addLayer @finish if @finish
 
     @map.on 'click', @onMapClick
     @control.activate()
@@ -22,6 +26,10 @@ class DistancePath
   passivate: =>
     @active = false
     @poly.editing.disable() if @poly?.editing?
+    @poly.setStyle @control.options.passiveStyle
+
+    @map.removeLayer @start if @start
+    @map.removeLayer @finish if @finish
 
     @map.off 'click', @onMapClick
     @control.passivate()
@@ -37,12 +45,12 @@ class DistancePath
     @poly.addLatLng(e.latlng)
 
     unless @start
-      @start = new L.CircleMarker(e.latlng)
+      @start = new L.CircleMarker(e.latlng, @control.options.activeStyle)
       @start.setRadius(5)
       @map.addLayer(@start)
 
     unless @finish
-      @finish = new L.CircleMarker(e.latlng)
+      @finish = new L.CircleMarker(e.latlng, @control.options.activeStyle)
       @finish.setRadius(5)
       @map.addLayer(@finish)
 
@@ -86,7 +94,7 @@ class DistancePath
 
 class DistanceControl
 
-  constructor: (@map) ->
+  constructor: (@map, @options) ->
     @map = map
     @container = L.DomUtil.create('div', 'leaflet-control-distance')
     @link = L.DomUtil.create('a', '', @container)
@@ -116,5 +124,11 @@ class DistanceControl
   options:
     position: 'topleft'
 
+    activeStyle:
+      color: 'red'
+
+    passiveStyle:
+      color: 'blue'
+
   onAdd: (map) ->
-    new DistanceControl(map).container
+    new DistanceControl(map, @options).container

@@ -39,6 +39,13 @@
       if (this.poly.editing != null) {
         this.poly.editing.enable();
       }
+      this.poly.setStyle(this.control.options.activeStyle);
+      if (this.start) {
+        this.map.addLayer(this.start);
+      }
+      if (this.finish) {
+        this.map.addLayer(this.finish);
+      }
       this.map.on('click', this.onMapClick);
       return this.control.activate();
     };
@@ -48,6 +55,13 @@
       this.active = false;
       if (((_ref = this.poly) != null ? _ref.editing : void 0) != null) {
         this.poly.editing.disable();
+      }
+      this.poly.setStyle(this.control.options.passiveStyle);
+      if (this.start) {
+        this.map.removeLayer(this.start);
+      }
+      if (this.finish) {
+        this.map.removeLayer(this.finish);
       }
       this.map.off('click', this.onMapClick);
       return this.control.passivate();
@@ -70,12 +84,12 @@
     DistancePath.prototype.onMapClick = function(e) {
       this.poly.addLatLng(e.latlng);
       if (!this.start) {
-        this.start = new L.CircleMarker(e.latlng);
+        this.start = new L.CircleMarker(e.latlng, this.control.options.activeStyle);
         this.start.setRadius(5);
         this.map.addLayer(this.start);
       }
       if (!this.finish) {
-        this.finish = new L.CircleMarker(e.latlng);
+        this.finish = new L.CircleMarker(e.latlng, this.control.options.activeStyle);
         this.finish.setRadius(5);
         this.map.addLayer(this.finish);
       }
@@ -130,8 +144,9 @@
 
     DistanceControl.name = 'DistanceControl';
 
-    function DistanceControl(map) {
+    function DistanceControl(map, options) {
       this.map = map;
+      this.options = options;
       this.toggleMeasure = __bind(this.toggleMeasure, this);
 
       this.map = map;
@@ -168,10 +183,16 @@
 
   this.L.Control.Distance = this.L.Control.extend({
     options: {
-      position: 'topleft'
+      position: 'topleft',
+      activeStyle: {
+        color: 'red'
+      },
+      passiveStyle: {
+        color: 'blue'
+      }
     },
     onAdd: function(map) {
-      return new DistanceControl(map).container;
+      return new DistanceControl(map, this.options).container;
     }
   });
 
