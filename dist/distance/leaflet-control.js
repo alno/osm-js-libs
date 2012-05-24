@@ -47,7 +47,7 @@
         this.map.addLayer(this.finish);
       }
       this.map.on('click', this.onMapClick);
-      return this.control.activate();
+      return this.control.activate(this);
     };
 
     DistancePath.prototype.passivate = function() {
@@ -82,15 +82,28 @@
     };
 
     DistancePath.prototype.onMapClick = function(e) {
+      var _this = this;
       this.poly.addLatLng(e.latlng);
       if (!this.start) {
         this.start = new L.CircleMarker(e.latlng, this.control.options.activeStyle);
         this.start.setRadius(5);
+        this.start.on('click', function() {
+          if (_this.poly.getLatLngs().length > 1) {
+            _this.poly.spliceLatLngs(0, 1);
+            return _this.onEdited();
+          }
+        });
         this.map.addLayer(this.start);
       }
       if (!this.finish) {
         this.finish = new L.CircleMarker(e.latlng, this.control.options.activeStyle);
-        this.finish.setRadius(5);
+        this.finish.setRadius(7);
+        this.finish.on('click', function() {
+          if (_this.poly.getLatLngs().length > 1) {
+            _this.poly.spliceLatLngs(-1, 1);
+            return _this.onEdited();
+          }
+        });
         this.map.addLayer(this.finish);
       }
       if (!this.popup) {
@@ -163,13 +176,16 @@
       if (this.path) {
         return this.path.passivate();
       } else {
-        this.path = new DistancePath(this.map, this);
-        return this.path.activate();
+        return new DistancePath(this.map, this).activate();
       }
     };
 
-    DistanceControl.prototype.activate = function() {
-      return L.DomUtil.addClass(this.link, 'active');
+    DistanceControl.prototype.activate = function(path) {
+      if (this.path && this.path !== path) {
+        this.path.passivate();
+      }
+      L.DomUtil.addClass(this.link, 'active');
+      return this.path = path;
     };
 
     DistanceControl.prototype.passivate = function() {

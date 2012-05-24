@@ -21,7 +21,7 @@ class DistancePath
     @map.addLayer @finish if @finish
 
     @map.on 'click', @onMapClick
-    @control.activate()
+    @control.activate(@)
 
   passivate: =>
     @active = false
@@ -47,11 +47,21 @@ class DistancePath
     unless @start
       @start = new L.CircleMarker(e.latlng, @control.options.activeStyle)
       @start.setRadius(5)
+      @start.on 'click', =>
+        if @poly.getLatLngs().length > 1
+          @poly.spliceLatLngs(0, 1)
+          @onEdited()
+
       @map.addLayer(@start)
 
     unless @finish
       @finish = new L.CircleMarker(e.latlng, @control.options.activeStyle)
-      @finish.setRadius(5)
+      @finish.setRadius(7)
+      @finish.on 'click', =>
+        if @poly.getLatLngs().length > 1
+          @poly.spliceLatLngs(-1, 1)
+          @onEdited()
+
       @map.addLayer(@finish)
 
     unless @popup
@@ -109,14 +119,18 @@ class DistanceControl
     if @path
       @path.passivate()
     else
-      @path = new DistancePath(@map, @)
-      @path.activate()
+      new DistancePath(@map, @).activate()
 
-  activate: ->
-    L.DomUtil.addClass(@link, 'active')
+  activate: (path) ->
+    if @path and @path != path
+      @path.passivate()
+
+    L.DomUtil.addClass @link, 'active'
+
+    @path = path
 
   passivate: ->
-    L.DomUtil.removeClass(@link, 'active')
+    L.DomUtil.removeClass @link, 'active'
     @path = null
 
 @L.Control.Distance = @L.Control.extend
