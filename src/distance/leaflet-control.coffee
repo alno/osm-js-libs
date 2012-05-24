@@ -1,3 +1,7 @@
+DistancePopup = L.Popup.extend
+
+  _close: () -> null
+
 class DistancePath
 
   constructor: (@map, @control) ->
@@ -38,7 +42,7 @@ class DistancePath
     @poly.addLatLng(e.latlng)
 
     unless @popup
-      @popup = new L.Popup()
+      @popup = new DistancePopup()
       @popup.setLatLng(e.latlng)
       @map.addLayer(@popup)
 
