@@ -1,3 +1,29 @@
+Icon = L.Icon.extend
+
+  options:
+    popupAnchor: new L.Point(0, -25)
+
+  initialize: (options) ->
+    L.Util.setOptions(this, options)
+
+  createIcon: ->
+    div = document.createElement('div')
+    div.className = 'leaflet-marker-icon weather-icon'
+    div.style['margin-left'] = '-30px'
+    div.style['margin-top'] = '-30px'
+    div.style['width'] = '60px'
+    div.style['height'] = '20px'
+    div.style['padding'] = "#{@options.textOffset}px 0px 0px 0px"
+    div.style['background'] = "url(#{@options.image}) no-repeat center top"
+    div.style['text-align'] = 'center'
+
+    span = document.createElement('span')
+    span.innerHTML = @options.text
+
+    div.appendChild(span)
+    div
+
+  createShadow: -> null
 
 Layer = L.Class.extend
 
@@ -123,9 +149,9 @@ Layer = L.Class.extend
     typeIcon = @typeIcon(st)
 
     markerIcon = if typeIcon
-      Layer.Utils.buildTypeIcon(typeIcon)
+      new Icon image: typeIcon, text: "#{@toCelc(st.temp)}&nbsp;°C", textOffset: 30
     else
-      Layer.Utils.buildWeatherIcon(weatherIcon)
+      new Icon image: weatherIcon, text: "#{@toCelc(st.temp)}&nbsp;°C", textOffset: 45
 
     marker = new L.Marker ll, icon: markerIcon
     marker.bindPopup(popupContent)
@@ -202,46 +228,6 @@ Layer = L.Class.extend
 Layer.Utils =
   callbacks: {}
   callbackCounter: 0
-  typeIconCache: {}
-  weatherIconCache: {}
-
-  buildWeatherIcon: (url) ->
-    return @weatherIconCache[url] if @weatherIconCache[url]
-
-    iconClass = L.Icon.extend
-      iconUrl: url
-      iconSize: new L.Point(60, 50)
-      iconAnchor: new L.Point(30, 30)
-      shadowSize: new L.Point(0, 0)
-      popupAnchor: new L.Point(0, -25)
-
-      options:
-        iconUrl: url
-        iconSize: new L.Point(60, 50)
-        iconAnchor: new L.Point(30, 30)
-        shadowSize: new L.Point(0, 0)
-        popupAnchor: new L.Point(0, -25)
-
-    @weatherIconCache[url] = new iconClass()
-
-  buildTypeIcon: (url) ->
-    return @typeIconCache[url] if @typeIconCache[url]
-
-    iconClass = L.Icon.extend
-      iconUrl: url
-      iconSize: new L.Point(24, 24)
-      iconAnchor: new L.Point(12, 12)
-      shadowSize: new L.Point(0, 0)
-      popupAnchor: new L.Point(0, -12)
-
-      options:
-        iconUrl: url
-        iconSize: new L.Point(23, 24)
-        iconAnchor: new L.Point(12, 12)
-        shadowSize: new L.Point(0, 0)
-        popupAnchor: new L.Point(0, -12)
-
-    @typeIconCache[url] = new iconClass()
 
   checkSunCal: ->
     return if SunCalc?
