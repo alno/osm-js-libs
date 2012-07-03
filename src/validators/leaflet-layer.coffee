@@ -102,7 +102,7 @@ Layer = L.Class.extend
       @map.removeLayer(layer)
 
       layer.clearLayers()
-      layer.addLayer(@buildResult(source, res)) for res in data.results when @disabledErrors.indexOf(res.type) < 0
+      layer.addLayer(@buildResult(source, res)) for res in data.results when source.types[res.type] and @disabledErrors.indexOf(res.type) < 0
 
       @map.addLayer(layer)
 
@@ -119,12 +119,9 @@ Layer = L.Class.extend
     center = bounds.getCenter()
     sw = bounds.getSouthWest()
     ne = bounds.getNorthEast()
-    errorText = L.Util.template(res.text or source.types[res.type].text, res.params)
 
     popupText = "<div class=\"map-validation-error\">"
-
-    popupText += "<p>#{errorText}</p>"
-
+    popupText += "<p>#{@buildErrorText(source,res)}</p>"
     popupText += "<p>"
     popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=#{ne.lat}&bottom=#{sw.lat}&left=#{sw.lng}&right=#{ne.lng}\" target=\"josm\">#{@i18n.edit_in_josm}</a><br />"
     popupText += "<a href=\"http://openstreetmap.org/edit?lat=#{center.lat}&lon=#{center.lng}&zoom=17\" target=\"_blank\">#{@i18n.edit_in_potlatch}</a><br />"
@@ -148,6 +145,13 @@ Layer = L.Class.extend
 
     resLayer.bindPopup(popupText)
     resLayer
+
+  buildErrorText: (source, res) ->
+    errorTemplate = res.text or source.types[res.type]?.text or res.type
+    errorData = res.params or {}
+
+    errorTemplate.replace /\{ *([\w_]+) *\}/g, (str, key) ->
+      errorData[key]
 
 Layer.Utils =
   callbacks: {}
