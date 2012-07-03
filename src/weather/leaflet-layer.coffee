@@ -136,7 +136,7 @@ Layer = L.Class.extend
 
     popupContent = "<div class=\"weather-place\">"
     popupContent += "<img height=\"38\" width=\"45\" style=\"border: none; float: right;\" alt=\"#{weatherText}\" src=\"#{weatherIcon}\" />"
-    popupContent += "<h3>#{st.name}</h3>"
+    popupContent += "<h3><a href=\"#{@buildUrl(st)}\" target=\"_blank\">#{st.name}</a></h3>"
     popupContent += "<p>#{weatherText}</p>"
     popupContent += "<p>"
     popupContent += "#{@i18n.currentTemperature}:&nbsp;#{@toCelc(st.temp)}&nbsp;°C<br />"
@@ -157,6 +157,12 @@ Layer = L.Class.extend
     marker = new L.Marker ll, icon: markerIcon
     marker.bindPopup(popupContent)
     marker
+
+  buildUrl: (st) ->
+    if st.datatype == 'station'
+      "http://openweathermap.org/station/#{st.id}"
+    else
+      "http://openweathermap.org/city/#{st.id}"
 
   weatherIcon: (st) ->
     day = @dayTime(st)

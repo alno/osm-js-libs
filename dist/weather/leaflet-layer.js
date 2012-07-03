@@ -141,7 +141,7 @@
       weatherIcon = this.weatherIcon(st);
       popupContent = "<div class=\"weather-place\">";
       popupContent += "<img height=\"38\" width=\"45\" style=\"border: none; float: right;\" alt=\"" + weatherText + "\" src=\"" + weatherIcon + "\" />";
-      popupContent += "<h3>" + st.name + "</h3>";
+      popupContent += "<h3><a href=\"" + (this.buildUrl(st)) + "\" target=\"_blank\">" + st.name + "</a></h3>";
       popupContent += "<p>" + weatherText + "</p>";
       popupContent += "<p>";
       popupContent += "" + this.i18n.currentTemperature + ":&nbsp;" + (this.toCelc(st.temp)) + "&nbsp;°C<br />";
@@ -170,6 +170,13 @@
       });
       marker.bindPopup(popupContent);
       return marker;
+    },
+    buildUrl: function(st) {
+      if (st.datatype === 'station') {
+        return "http://openweathermap.org/station/" + st.id;
+      } else {
+        return "http://openweathermap.org/city/" + st.id;
+      }
     },
     weatherIcon: function(st) {
       var cl, day, i, img, _i, _len, _ref;
