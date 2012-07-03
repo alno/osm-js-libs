@@ -44,7 +44,8 @@
         icerain: "Ice rain",
         rime: "Rime",
         rime_possible: "Rime",
-        clear: "Clear"
+        clear: "Clear",
+        updateDate: "Updated at"
       },
       ru: {
         currentTemperature: "Температура",
@@ -59,7 +60,8 @@
         icerain: "Ледяной дождь",
         rime: "Гололед",
         rime_possible: "Возможен гололед",
-        clear: "Ясно"
+        clear: "Ясно",
+        updateDate: "Дата обновления"
       }
     },
     includes: L.Mixin.Events,
@@ -151,8 +153,13 @@
       if (st.temp_min) {
         popupContent += "" + this.i18n.minimumTemperature + ":&nbsp;" + (this.toCelc(st.temp_min)) + "&nbsp;°C<br />";
       }
-      popupContent += "" + this.i18n.humidity + ":&nbsp;" + st.humidity + "<br />";
+      if (st.humidity) {
+        popupContent += "" + this.i18n.humidity + ":&nbsp;" + st.humidity + "<br />";
+      }
       popupContent += "" + this.i18n.wind + ":&nbsp;" + st.wind_ms + "&nbsp;m/s<br />";
+      if (st.dt) {
+        popupContent += "" + this.i18n.updateDate + ":&nbsp;" + (this.formatTimestamp(st.dt)) + "<br />";
+      }
       popupContent += "</p>";
       popupContent += "</div>";
       typeIcon = this.typeIcon(st);
@@ -170,6 +177,24 @@
       });
       marker.bindPopup(popupContent);
       return marker;
+    },
+    formatTimestamp: function(ts) {
+      var d, date, hh, m, mm;
+      date = new Date(ts * 1000);
+      m = date.getMonth() + 1;
+      if (m < 10) {
+        m = '0' + m;
+      }
+      d = date.getDate();
+      if (d < 10) {
+        d = '0' + d;
+      }
+      hh = date.getHours();
+      mm = date.getMinutes();
+      if (mm < 10) {
+        mm = '0' + mm;
+      }
+      return "" + (date.getFullYear()) + "-" + m + "-" + d + " " + hh + ":" + mm;
     },
     buildUrl: function(st) {
       if (st.datatype === 'station') {

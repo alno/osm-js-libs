@@ -41,6 +41,7 @@ Layer = L.Class.extend
       rime: "Rime"
       rime_possible: "Rime"
       clear: "Clear"
+      updateDate: "Updated at"
 
     ru:
       currentTemperature: "Температура"
@@ -56,6 +57,7 @@ Layer = L.Class.extend
       rime: "Гололед"
       rime_possible: "Возможен гололед"
       clear: "Ясно"
+      updateDate: "Дата обновления"
 
   includes: L.Mixin.Events
 
@@ -142,8 +144,9 @@ Layer = L.Class.extend
     popupContent += "#{@i18n.currentTemperature}:&nbsp;#{@toCelc(st.temp)}&nbsp;°C<br />"
     popupContent += "#{@i18n.maximumTemperature}:&nbsp;#{@toCelc(st.temp_max)}&nbsp;°C<br />" if st.temp_max
     popupContent += "#{@i18n.minimumTemperature}:&nbsp;#{@toCelc(st.temp_min)}&nbsp;°C<br />" if st.temp_min
-    popupContent += "#{@i18n.humidity}:&nbsp;#{st.humidity}<br />"
+    popupContent += "#{@i18n.humidity}:&nbsp;#{st.humidity}<br />" if st.humidity
     popupContent += "#{@i18n.wind}:&nbsp;#{st.wind_ms}&nbsp;m/s<br />"
+    popupContent += "#{@i18n.updateDate}:&nbsp;#{@formatTimestamp(st.dt)}<br />" if st.dt
     popupContent += "</p>"
     popupContent += "</div>"
 
@@ -157,6 +160,22 @@ Layer = L.Class.extend
     marker = new L.Marker ll, icon: markerIcon
     marker.bindPopup(popupContent)
     marker
+
+  formatTimestamp: (ts) ->
+    date = new Date(ts * 1000)
+
+    m = date.getMonth()+1
+    m = '0' + m if m < 10
+
+    d = date.getDate()
+    d = '0' + d if d < 10
+
+    hh = date.getHours()
+
+    mm = date.getMinutes()
+    mm = '0' + mm if mm < 10
+
+    "#{date.getFullYear()}-#{m}-#{d} #{hh}:#{mm}"
 
   buildUrl: (st) ->
     if st.datatype == 'station'
