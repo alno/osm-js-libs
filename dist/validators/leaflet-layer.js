@@ -132,7 +132,7 @@
         _ref = data.results;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           res = _ref[_i];
-          if (_this.disabledErrors.indexOf(res.type) < 0) {
+          if (source.types[res.type] && _this.disabledErrors.indexOf(res.type) < 0) {
             layer.addLayer(_this.buildResult(source, res));
           }
         }
@@ -152,7 +152,7 @@
       return _results;
     },
     buildResult: function(source, res) {
-      var bounds, center, errorText, key, ne, obj, popupText, resLayer, sw, value, _i, _len, _ref, _ref1;
+      var bounds, center, key, ne, obj, popupText, resLayer, sw, value, _i, _len, _ref, _ref1;
       bounds = new L.LatLngBounds();
       resLayer = new L.GeoJSON({
         type: 'Feature',
@@ -162,9 +162,8 @@
       center = bounds.getCenter();
       sw = bounds.getSouthWest();
       ne = bounds.getNorthEast();
-      errorText = L.Util.template(res.text || source.types[res.type].text, res.params);
       popupText = "<div class=\"map-validation-error\">";
-      popupText += "<p>" + errorText + "</p>";
+      popupText += "<p>" + (this.buildErrorText(source, res)) + "</p>";
       popupText += "<p>";
       popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=" + ne.lat + "&bottom=" + sw.lat + "&left=" + sw.lng + "&right=" + ne.lng + "\" target=\"josm\">" + this.i18n.edit_in_josm + "</a><br />";
       popupText += "<a href=\"http://openstreetmap.org/edit?lat=" + center.lat + "&lon=" + center.lng + "&zoom=17\" target=\"_blank\">" + this.i18n.edit_in_potlatch + "</a><br />";
@@ -192,6 +191,14 @@
       popupText += "</div>";
       resLayer.bindPopup(popupText);
       return resLayer;
+    },
+    buildErrorText: function(source, res) {
+      var errorData, errorTemplate, _ref;
+      errorTemplate = res.text || ((_ref = source.types[res.type]) != null ? _ref.text : void 0) || res.type;
+      errorData = res.params || {};
+      return errorTemplate.replace(/\{ *([\w_]+) *\}/g, function(str, key) {
+        return errorData[key];
+      });
     }
   });
 
