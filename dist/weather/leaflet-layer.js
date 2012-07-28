@@ -74,6 +74,10 @@
       this.clusterHeight = this.options.clusterHeight || 150;
       this.type = this.options.type || 'city';
       this.i18n = this.options.i18n || this.defaultI18n[this.options.lang || 'en'];
+      if (this.options.hasOwnProperty('stationsIcon'))
+        this.stationsIcon = this.options.stationsIcon;
+      else
+      	this.stationsIcon = true;      
       this.temperatureDigits = this.options.temperatureDigits;
       if (this.temperatureDigits == null) {
         this.temperatureDigits = 2;
@@ -163,7 +167,7 @@
       popupContent += "</p>";
       popupContent += "</div>";
       typeIcon = this.typeIcon(st);
-      markerIcon = typeIcon ? new Icon({
+      markerIcon = (this.stationsIcon && typeIcon) ? new Icon({
         image: typeIcon,
         text: "" + (this.toCelc(st.temp)) + "&nbsp;°C",
         textOffset: 30
