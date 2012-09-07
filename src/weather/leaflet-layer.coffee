@@ -24,6 +24,21 @@ Icon = L.Icon.extend
 
   createShadow: -> null
 
+UnitFormatters =
+  metric:
+    temperature: (k, digits) ->
+      p = Math.pow(10, digits)
+      c = k - 273.15
+
+      "#{Math.round(c * p) / p}&nbsp;°C"
+
+  imperial:
+    temperature: (k, digits) ->
+      p = Math.pow(10, digits)
+      f = (k - 273.15) * 1.8 + 32
+
+      "#{Math.round(f * p) / p}&nbsp;°F"
+
 Layer = L.Class.extend
 
   defaultI18n:
@@ -68,6 +83,7 @@ Layer = L.Class.extend
 
     @clusterWidth = @options.clusterWidth or 150
     @clusterHeight = @options.clusterHeight or 150
+    @unitFormatter = UnitFormatters[@options.units or 'metric']
 
     @type = @options.type or 'city'
     @i18n = @options.i18n or @defaultI18n[@options.lang or 'en']
@@ -141,9 +157,9 @@ Layer = L.Class.extend
     popupContent += "<h3><a href=\"#{@buildUrl(st)}\" target=\"_blank\">#{st.name}</a></h3>"
     popupContent += "<p>#{weatherText}</p>"
     popupContent += "<p>"
-    popupContent += "#{@i18n.currentTemperature}:&nbsp;#{@toCelc(st.temp)}&nbsp;°C<br />"
-    popupContent += "#{@i18n.maximumTemperature}:&nbsp;#{@toCelc(st.temp_max)}&nbsp;°C<br />" if st.temp_max
-    popupContent += "#{@i18n.minimumTemperature}:&nbsp;#{@toCelc(st.temp_min)}&nbsp;°C<br />" if st.temp_min
+    popupContent += "#{@i18n.currentTemperature}:&nbsp;#{@unitFormatter.temperature(st.temp, @temperatureDigits)}<br />"
+    popupContent += "#{@i18n.maximumTemperature}:&nbsp;#{@unitFormatter.temperature(st.temp_max, @temperatureDigits)}<br />" if st.temp_max
+    popupContent += "#{@i18n.minimumTemperature}:&nbsp;#{@unitFormatter.temperature(st.temp_min, @temperatureDigits)}<br />" if st.temp_min
     popupContent += "#{@i18n.humidity}:&nbsp;#{st.humidity}<br />" if st.humidity
     popupContent += "#{@i18n.wind}:&nbsp;#{st.wind_ms}&nbsp;m/s<br />"
     popupContent += "#{@i18n.updateDate}:&nbsp;#{@formatTimestamp(st.dt)}<br />" if st.dt
@@ -153,9 +169,9 @@ Layer = L.Class.extend
     typeIcon = @typeIcon(st)
 
     markerIcon = if typeIcon
-      new Icon image: typeIcon, text: "#{@toCelc(st.temp)}&nbsp;°C", textOffset: 30
+      new Icon image: typeIcon, text: "#{@unitFormatter.temperature(st.temp, @temperatureDigits)}", textOffset: 30
     else
-      new Icon image: weatherIcon, text: "#{@toCelc(st.temp)}&nbsp;°C", textOffset: 45
+      new Icon image: weatherIcon, text: "#{@unitFormatter.temperature(st.temp, @temperatureDigits)}", textOffset: 45
 
     marker = new L.Marker ll, icon: markerIcon
     marker.bindPopup(popupContent)
@@ -247,10 +263,6 @@ Layer = L.Class.extend
       'd'
     else
       'n'
-
-  toCelc: (t) ->
-    p = Math.pow(10, @temperatureDigits)
-    Math.round((t - 273.15) * p) / p
 
 Layer.Utils =
   callbacks: {}
