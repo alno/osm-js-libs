@@ -28,16 +28,30 @@ UnitFormatters =
   metric:
     temperature: (k, digits) ->
       p = Math.pow(10, digits)
-      c = k - 273.15
+      c = k - 273.15 # Convert kelvin degrees to celsius
 
       "#{Math.round(c * p) / p}&nbsp;°C"
+
+    speed: (v) ->
+      "#{v}&nbsp;m/s"
+
+    height: (v) ->
+      "#{v}&nbsp;mm"
 
   imperial:
     temperature: (k, digits) ->
       p = Math.pow(10, digits)
-      f = (k - 273.15) * 1.8 + 32
+      f = (k - 273.15) * 1.8 + 32 # Convert kelvin degrees to fahrenheit
 
       "#{Math.round(f * p) / p}&nbsp;°F"
+
+    speed: (v) ->
+      v = Math.round(v*2.237) # Convert m/s to mph
+      "#{v}&nbsp;mph"
+
+    height: (v) ->
+      v = Math.round(v/1.27) / 20 # Convert mm to inches
+      "#{v}&nbsp;in"
 
 Layer = L.Class.extend
 
@@ -161,7 +175,7 @@ Layer = L.Class.extend
     popupContent += "#{@i18n.maximumTemperature}:&nbsp;#{@unitFormatter.temperature(st.temp_max, @temperatureDigits)}<br />" if st.temp_max
     popupContent += "#{@i18n.minimumTemperature}:&nbsp;#{@unitFormatter.temperature(st.temp_min, @temperatureDigits)}<br />" if st.temp_min
     popupContent += "#{@i18n.humidity}:&nbsp;#{st.humidity}<br />" if st.humidity
-    popupContent += "#{@i18n.wind}:&nbsp;#{st.wind_ms}&nbsp;m/s<br />"
+    popupContent += "#{@i18n.wind}:&nbsp;#{@unitFormatter.speed(st.wind_ms)}<br />"
     popupContent += "#{@i18n.updateDate}:&nbsp;#{@formatTimestamp(st.dt)}<br />" if st.dt
     popupContent += "</p>"
     popupContent += "</div>"
@@ -236,19 +250,19 @@ Layer = L.Class.extend
 
     if st.prsp_type == '1'
       if  st.prcp!=0 and st.prcp > 0
-        "#{@i18n.snow}&nbsp;(#{st.prcp}&nbsp;mm)"
+        "#{@i18n.snow}&nbsp;(#{@unitFormatter.height(st.prcp)})"
       else
         @i18n.snow_possible
     else if st.prsp_type == '2'
       if  st.prcp!=0 and st.prcp > 0
-        "#{@i18n.rime}&nbsp;(#{st.prcp}&nbsp;mm)"
+        "#{@i18n.rime}&nbsp;(#{@unitFormatter.height(st.prcp)})"
       else
         @i18n.rime_possible
     else if st.prsp_type == '3'
       @i18n.icerain
     else if st.prsp_type == '4'
       if  st.prcp!=0 and st.prcp > 0
-        "#{@i18n.rain}&nbsp;(#{st.prcp}&nbsp;mm)"
+        "#{@i18n.rain}&nbsp;(#{@unitFormatter.height(st.prcp)})"
       else
         @i18n.rain_possible
     else

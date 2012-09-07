@@ -36,6 +36,12 @@
         p = Math.pow(10, digits);
         c = k - 273.15;
         return "" + (Math.round(c * p) / p) + "&nbsp;°C";
+      },
+      speed: function(v) {
+        return "" + v + "&nbsp;m/s";
+      },
+      height: function(v) {
+        return "" + v + "&nbsp;mm";
       }
     },
     imperial: {
@@ -44,6 +50,14 @@
         p = Math.pow(10, digits);
         f = (k - 273.15) * 1.8 + 32;
         return "" + (Math.round(f * p) / p) + "&nbsp;°F";
+      },
+      speed: function(v) {
+        v = Math.round(v * 2.237);
+        return "" + v + "&nbsp;mph";
+      },
+      height: function(v) {
+        v = Math.round(v / 1.27) / 20;
+        return "" + v + "&nbsp;in";
       }
     }
   };
@@ -176,7 +190,7 @@
       if (st.humidity) {
         popupContent += "" + this.i18n.humidity + ":&nbsp;" + st.humidity + "<br />";
       }
-      popupContent += "" + this.i18n.wind + ":&nbsp;" + st.wind_ms + "&nbsp;m/s<br />";
+      popupContent += "" + this.i18n.wind + ":&nbsp;" + (this.unitFormatter.speed(st.wind_ms)) + "<br />";
       if (st.dt) {
         popupContent += "" + this.i18n.updateDate + ":&nbsp;" + (this.formatTimestamp(st.dt)) + "<br />";
       }
@@ -267,13 +281,13 @@
     weatherText: function(st) {
       if (st.prsp_type === '1') {
         if (st.prcp !== 0 && st.prcp > 0) {
-          return "" + this.i18n.snow + "&nbsp;(" + st.prcp + "&nbsp;mm)";
+          return "" + this.i18n.snow + "&nbsp;(" + (this.unitFormatter.height(st.prcp)) + ")";
         } else {
           return this.i18n.snow_possible;
         }
       } else if (st.prsp_type === '2') {
         if (st.prcp !== 0 && st.prcp > 0) {
-          return "" + this.i18n.rime + "&nbsp;(" + st.prcp + "&nbsp;mm)";
+          return "" + this.i18n.rime + "&nbsp;(" + (this.unitFormatter.height(st.prcp)) + ")";
         } else {
           return this.i18n.rime_possible;
         }
@@ -281,7 +295,7 @@
         return this.i18n.icerain;
       } else if (st.prsp_type === '4') {
         if (st.prcp !== 0 && st.prcp > 0) {
-          return "" + this.i18n.rain + "&nbsp;(" + st.prcp + "&nbsp;mm)";
+          return "" + this.i18n.rain + "&nbsp;(" + (this.unitFormatter.height(st.prcp)) + ")";
         } else {
           return this.i18n.rain_possible;
         }
