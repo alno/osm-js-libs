@@ -1,4 +1,16 @@
 
+intersects = (arr1, arr2) ->
+  for el in arr1 when arr2.indexOf(el) >= 0
+    return true
+
+  false
+
+intersectsKeys = (arr, hash) ->
+  for el in arr when hash[el]
+    return true
+
+  false
+
 Layer = L.Class.extend
 
   includes: L.Mixin.Events
@@ -101,8 +113,11 @@ Layer = L.Class.extend
       layer = @sourceLayers[source.url]
       @map.removeLayer(layer)
 
+      for res in data.results when res.type
+        res.types = [res.type]
+
       layer.clearLayers()
-      layer.addLayer(@buildResult(source, res)) for res in data.results when source.types[res.type] and @disabledErrors.indexOf(res.type) < 0
+      layer.addLayer(@buildResult(source, res)) for res in data.results when intersectsKeys(res.types, source.types) and not intersects(res.types, @disabledErrors)
 
       @map.addLayer(layer)
 
@@ -147,11 +162,19 @@ Layer = L.Class.extend
     resLayer
 
   buildErrorText: (source, res) ->
-    errorTemplate = res.text or source.types[res.type]?.text or res.type
+    errorTemplate = res.text or @buildErrorTemplate(source, res)
     errorData = res.params or {}
 
     errorTemplate.replace /\{ *([\w_]+) *\}/g, (str, key) ->
       errorData[key]
+
+  buildErrorTemplate: (source, res) ->
+    elems = []
+
+    for type in res.types when source.types[type]?.text
+      elems.push(source.types[type].text)
+
+    elems.join()
 
 Layer.Utils =
   callbacks: {}
