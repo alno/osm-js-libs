@@ -20,7 +20,7 @@ Layer = L.Class.extend
     @sourceLayers = {}
     @sourceRequests = {}
     @disabledErrors = []
-    @i18n = @options.i18n or { objects: 'Objects', params: 'Params', edit_in_potlatch: 'Edit in Potlatch', edit_in_josm: 'Edit in JOSM' }
+    @i18n = @options.i18n or { error_info: 'More error info', errors: 'Errors', objects: 'Objects', params: 'Params', edit_in_potlatch: 'Edit in Potlatch', edit_in_josm: 'Edit in JOSM' }
 
     for source in (@options.sources or [])
       @addSource(source)
@@ -136,8 +136,20 @@ Layer = L.Class.extend
     ne = bounds.getNorthEast()
 
     popupText = "<div class=\"map-validation-error\">"
-    popupText += "<p>#{@buildErrorText(source,res)}</p>"
+    popupText += "<p>#{@i18n.errors}</p>"
+    popupText += "<ul class=\"errors\">"
+    for type in res.types when source.types[type]?.text
+      errorTemplate = source.types[type].text
+      errorData = res.params or {}
+
+      popupText += "<li>"
+      popupText += errorTemplate.replace /\{ *([\w_]+) *\}/g, (str, key) ->
+        errorData[key]
+      popupText += "</li>"
+    popupText += "</ul>"
+
     popupText += "<p>"
+    popupText += "<a href=\"#{res.url}\" target=\"_blank\">#{@i18n.error_info}</a><br />" if res.url
     popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=#{ne.lat}&bottom=#{sw.lat}&left=#{sw.lng}&right=#{ne.lng}\" target=\"josm\">#{@i18n.edit_in_josm}</a><br />"
     popupText += "<a href=\"http://openstreetmap.org/edit?lat=#{center.lat}&lon=#{center.lng}&zoom=17\" target=\"_blank\">#{@i18n.edit_in_potlatch}</a><br />"
     popupText += "</p>"
@@ -160,21 +172,6 @@ Layer = L.Class.extend
 
     resLayer.bindPopup(popupText)
     resLayer
-
-  buildErrorText: (source, res) ->
-    errorTemplate = res.text or @buildErrorTemplate(source, res)
-    errorData = res.params or {}
-
-    errorTemplate.replace /\{ *([\w_]+) *\}/g, (str, key) ->
-      errorData[key]
-
-  buildErrorTemplate: (source, res) ->
-    elems = []
-
-    for type in res.types when source.types[type]?.text
-      elems.push(source.types[type].text)
-
-    elems.join()
 
 Layer.Utils =
   callbacks: {}
