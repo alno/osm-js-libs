@@ -1,0 +1,217 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Leaflet validators example</title>
+
+    <link rel="stylesheet" href="http://leaflet.cloudmade.com/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://raw.github.com/ErshKUS/OpenStreetMap.ru/master/www/css/jstree/jstree.css" />
+
+    <!--[if lte IE 8]><link rel="stylesheet" href="http://leaflet.cloudmade.com/dist/leaflet.ie.css" /><![endif]-->
+    <script src="http://leaflet.cloudmade.com/dist/leaflet.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://static.jstree.com/v.1.0pre/jquery.cookie.js"></script>
+    <script type="text/javascript" src="http://static.jstree.com/v.1.0pre/jquery.jstree.js"></script>
+
+    <script src="../dist/validators/leaflet-layer.js"></script>
+    <script src="../dist/validators/jquery-sources-control.js"></script>
+    <script src="../dist/validators/jstree-errors-control.js"></script>
+
+    <style type="text/css">
+      .map-validation-error ul {
+        list-style: none;
+        padding-left: 10px;
+        margin: 8px 0px;
+      }
+
+      .map-validation-error h4,
+      .map-validation-error p {
+        margin: 8px 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" style="width: 100%; height: 500"></div>
+
+    <h3>Используемые источники:</h3>
+    <ul id="sources"></ul>
+
+    <h3>Отображаемые ошибки:</h3>
+    <ul id="errors"></ul>
+
+    <script>
+      var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          osmAttribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+          osmLayer = new L.TileLayer(osmUrl, {maxZoom: 18, attribution: osmAttribution});
+
+      var map = new L.Map('map');
+      map.setView(new L.LatLng(57.1, 31.1), 7)
+      map.addLayer(osmLayer);
+
+      var validatorsLayer = new OsmJs.Validators.LeafletLayer({sources: [{
+        "name": "Адресный и роутинговый валидатор Zkir",
+        "url": "http://osm.alno.name/validators/zkir?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}&types={filtered_types}",
+        "types": {
+          "city_without_population": {"text": "Город без населения: {city}"},
+          "city_without_place_polygon": {"text": "Город без полигональной границы: {city}"},
+          "city_without_place_node": {"text": "Город без точечного центра: {city}"},
+          "routing_subgraph": {"text": "Рутинговый подграф"},
+          "routing_subgraph_trunk": {"text": "Рутинговый подграф на уровне trunk"},
+          "routing_subgraph_primary": {"text": "Рутинговый подграф на уровне primary"},
+          "routing_subgraph_secondary": {"text": "Рутинговый подграф на уровне secondary"},
+          "routing_subgraph_tertiary": {"text": "Рутинговый подграф на уровне tertiary"},
+          "duplicate_point": {"text": "Точка-дубликат"},
+          "building_not_in_place": {"text": "Здание за пределами населенного пункта"},
+          "address_without_street": {"text": "Адрес без улицы"},
+          "address_street_not_found": {"text": "Адресная улица не найдена: {street}"},
+          "address_street_not_in_place": {"text": "Улица из адреса не связана с городом: {street}"},
+          "address_by_territory": {"text": "Здание нумеруется по территории"},
+          "address_street_not_routed": {"text": "Не-рутинговая улица: {street}"},
+          "street_not_in_place": {"text": "Улица за пределами города: {street}"}
+        },
+        "jsonp": true,
+        "filtered_types": true
+      }], i18n: { error_info: 'Дополнительная информация', errors: 'Ошибки', objects: 'Объекты', params: 'Параметры', edit_in_potlatch: 'Редактировать в Potlatch', edit_in_josm: 'Редактировать в JOSM' }});
+
+      $('#sources').validatorSourcesControl(validatorsLayer, {sources: [{
+        "name": "Валидатор отношений Shurik",
+        "url": "http://localhost:9292/validators/cupivan_places?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
+        "offset_limit": true,
+        "types": {
+          "wikipedia": {"text": "Wikipedia"}
+        }
+      },{
+        "name": "Валидатор сиротских улиц ErshKUS",
+        "url": "http://openstreetmap.ru/api/bug_orphan_street?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}",
+        "types": {
+          "orphan_street": {"text": "Orphan street"}
+        }
+      },{
+        "name": "Проверка параметров городов по Википедии",
+        "url": "http://osm.alno.name/validators/cupivan_places?minlat={minlat}&minlon={minlon}&maxlat={maxlat}&maxlon={maxlon}&types={filtered_types}",
+        "types": {
+          "place":      { "text": "Неверно указан тип населенного пункта" },
+          "wikipedia":  { "text": "Неверно указана ссылка на википедию" },
+          "population": { "text": "Неверно указано население" },
+          "province":   { "text": "Неверно указана область/край/республика" },
+          "district":   { "text": "Неверно указан район города}" },
+          "official_status": { "text": "Неверно указан статус населенного пункта" },
+          "name":       { "text": "Неверно указано название населенного пункта" },
+          "old_name":   { "text": "Неверно указано прежнее название населенного пункта" },
+          "website":    { "text": "Неверно указан вебсайт" }
+        },
+        "jsonp": true,
+        "offset_limit": true
+      }]})
+
+      $('#errors').validatorErrorsControl(validatorsLayer, {errors: [{
+        name: "Отношения",
+        children: [{
+          name: "Some error",
+          type: "some_error"
+        }]
+      },{
+        name: "Роутинг",
+        children: [{
+          name: "Изолированный подграф",
+          type: "routing_subgraph"
+        },{
+          name: "Изолированный подграф trunk",
+          type: "routing_subgraph_trunk"
+        },{
+          name: "Изолированный подграф primary",
+          type: "routing_subgraph_primary"
+        },{
+          name: "Изолированный подграф secondary",
+          type: "routing_subgraph_secondary"
+        },{
+          name: "Изолированный подграф tertiary",
+          type: "routing_subgraph_tertiary"
+        }]
+      },{
+        name: "Адресация",
+        children: [{
+          name: "Города",
+          children: [{
+            name: "Без населения",
+            type: "city_without_population"
+          },{
+            name: "Без границы",
+            type: "city_without_place_polygon"
+          },{
+            name: "Без центра",
+            type: "city_without_place_node"
+          }]
+        },{
+          name: "Улицы",
+          children: [{
+            name: "За пределами города",
+            type: "street_not_in_place"
+          }]
+        },{
+          name: "Здания",
+          children: [{
+            name: "За пределами города",
+            type: "building_not_in_place"
+          },{
+            name: "Без улицы",
+            type: "address_without_street"
+          },{
+            name: "Улица не найдена",
+            type: "address_street_not_found"
+          },{
+            name: "Улица не связана с городом",
+            type: "address_street_not_in_place"
+          },{
+            name: "Здание нумеруется по территории",
+            type: "address_by_territory"
+          },{
+            name: "Улица не является рутинговой",
+            type: "address_street_not_routed"
+          }]
+        },{
+          name: "Другие",
+          children: [{
+            name: "Точка-дубликат",
+            type: "duplicate_point"
+          },{
+            name: "Wikipedia",
+            type: "wikipedia"
+          }]
+        }]
+      },{
+        name: "Населенные пункты",
+        children: [{
+          name: "Тип",
+          type: "place"
+        },{
+          name: "Статус",
+          type: "official_status"
+        },{
+          name: "Название",
+          type: "name"
+        },{
+          name: "Старое название",
+          type: "old_name"
+        },{
+          name: "Регион",
+          type: "region"
+        },{
+          name: "Район",
+          type: "district"
+        },{
+          name: "Население",
+          type: "population"
+        },{
+          name: "Вебсайт",
+          type: "website"
+        },{
+          name: "Ссылка на википедию",
+          type: "wikipedia"
+        }]
+      }]});
+
+      map.addLayer(validatorsLayer);
+    </script>
+  </body>
+</html>
