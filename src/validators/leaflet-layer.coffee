@@ -87,6 +87,8 @@ Layer = L.Class.extend
     @map = undefined
 
   update: ->
+    return unless @map
+
     for url, req of @sourceRequests
       req.abort()
 
