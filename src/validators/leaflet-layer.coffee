@@ -20,7 +20,7 @@ Layer = L.Class.extend
     @sourceLayers = {}
     @sourceRequests = {}
     @disabledErrors = []
-    @i18n = @options.i18n or { error_info: 'More error info', errors: 'Errors', objects: 'Objects', params: 'Params', edit_in_potlatch: 'Edit in Potlatch', edit_in_josm: 'Edit in JOSM' }
+    @i18n = @options.i18n or { error_info: 'More error info', errors: 'Errors', objects: 'Objects', params: 'Params', edit_in_potlatch: 'Edit in Potlatch', edit_in_josm: 'Edit in JOSM', created_at: 'Created at', updated_at: 'Updated at' }
 
     for source in (@options.sources or [])
       @addSource(source)
@@ -150,6 +150,12 @@ Layer = L.Class.extend
       popupText += "</li>"
     popupText += "</ul>"
 
+    if @options.dateFormat
+      popupText += "<p>"
+      popupText += "#{@i18n.created_at}: #{@formatDate(new Date(res.created_at))}<br />" if res.created_at
+      popupText += "#{@i18n.updated_at}: #{@formatDate(new Date(res.updated_at))}<br />" if res.updated_at
+      popupText += "</p>"
+
     popupText += "<p>"
     popupText += "<a href=\"#{res.url}\" target=\"_blank\">#{@i18n.error_info}</a><br />" if res.url
     popupText += "<a href=\"http://localhost:8111/load_and_zoom?top=#{ne.lat}&bottom=#{sw.lat}&left=#{sw.lng}&right=#{ne.lng}\" target=\"josm\">#{@i18n.edit_in_josm}</a><br />"
@@ -174,6 +180,12 @@ Layer = L.Class.extend
 
     resLayer.bindPopup(popupText)
     resLayer
+
+  formatDate: (date) ->
+    @options.dateFormat
+      .replace("DD", (if date.getDate() < 10 then '0' else '') + date.getDate()) # Pad with '0' if needed
+      .replace("MM", (if date.getMonth() < 9 then '0' else '') + (date.getMonth() + 1)) # Months are zero-based
+      .replace("YYYY", date.getFullYear())
 
 Layer.Utils =
   callbacks: {}

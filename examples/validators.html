@@ -67,7 +67,9 @@
         },
         "jsonp": true,
         "filtered_types": true
-      }], i18n: { error_info: 'Дополнительная информация', errors: 'Ошибки', objects: 'Объекты', params: 'Параметры', edit_in_potlatch: 'Редактировать в Potlatch', edit_in_josm: 'Редактировать в JOSM' }});
+      }],
+        dateFormat: 'YYYY-MM-DD',
+        i18n: { error_info: 'Дополнительная информация', errors: 'Ошибки', objects: 'Объекты', params: 'Параметры', edit_in_potlatch: 'Редактировать в Potlatch', edit_in_josm: 'Редактировать в JOSM', created_at: 'Появилась', updated_at: 'Обновлена' }});
 
       $('#sources').validatorSourcesControl(validatorsLayer, {sources: [{
         "name": "Валидатор отношений Shurik",
