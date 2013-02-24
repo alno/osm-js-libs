@@ -108,10 +108,7 @@
       this.unitFormatter = UnitFormatters[this.options.units || 'metric'];
       this.type = this.options.type || 'city';
       this.i18n = this.options.i18n || this.defaultI18n[this.options.lang || 'en'];
-      if (this.options.hasOwnProperty('stationsIcon'))
-        this.stationsIcon = this.options.stationsIcon;
-      else
-      	this.stationsIcon = true;      
+      this.stationsIcon = this.options.hasOwnProperty('stationsIcon') ? this.options.stationsIcon : true;
       this.temperatureDigits = this.options.temperatureDigits;
       if (this.temperatureDigits == null) {
         this.temperatureDigits = 2;
@@ -201,7 +198,7 @@
       popupContent += "</p>";
       popupContent += "</div>";
       typeIcon = this.typeIcon(st);
-      markerIcon = (this.stationsIcon && typeIcon) ? new Icon({
+      markerIcon = this.stationsIcon && typeIcon ? new Icon({
         image: typeIcon,
         text: "" + (this.unitFormatter.temperature(st.temp, this.temperatureDigits)),
         textOffset: 30

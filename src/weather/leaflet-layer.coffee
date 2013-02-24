@@ -101,6 +101,7 @@ Layer = L.Class.extend
 
     @type = @options.type or 'city'
     @i18n = @options.i18n or @defaultI18n[@options.lang or 'en']
+    @stationsIcon = if @options.hasOwnProperty('stationsIcon') then @options.stationsIcon else true
     @temperatureDigits = @options.temperatureDigits
     @temperatureDigits = 2 unless @temperatureDigits?
 
@@ -182,7 +183,7 @@ Layer = L.Class.extend
 
     typeIcon = @typeIcon(st)
 
-    markerIcon = if typeIcon
+    markerIcon = if @stationsIcon and typeIcon
       new Icon image: typeIcon, text: "#{@unitFormatter.temperature(st.temp, @temperatureDigits)}", textOffset: 30
     else
       new Icon image: weatherIcon, text: "#{@unitFormatter.temperature(st.temp, @temperatureDigits)}", textOffset: 45
