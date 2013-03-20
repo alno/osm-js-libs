@@ -328,7 +328,7 @@
         return;
       }
       el = document.createElement('script');
-      el.src = 'https://raw.github.com/mourner/suncalc/master/suncalc-min.js';
+      el.src = 'https://raw.github.com/mourner/suncalc/master/suncalc.js';
       el.type = 'text/javascript';
       return document.getElementsByTagName('body')[0].appendChild(el);
     },

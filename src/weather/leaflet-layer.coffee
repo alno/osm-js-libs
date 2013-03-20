@@ -287,7 +287,7 @@ Layer.Utils =
     return if SunCalc?
 
     el = document.createElement('script')
-    el.src = 'https://raw.github.com/mourner/suncalc/master/suncalc-min.js'
+    el.src = 'https://raw.github.com/mourner/suncalc/master/suncalc.js'
     el.type = 'text/javascript'
     document.getElementsByTagName('body')[0].appendChild(el)
 
